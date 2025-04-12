@@ -95,6 +95,8 @@ class AuthController extends GetxController {
 
 Future<String?> getAuthToken() async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
-  return prefs.getString('auth_token');
+  final token = prefs.getString('auth_token');
+  print("Token retrieved from SharedPreferences: $token");
+  return token;
 }
 

@@ -57,6 +57,7 @@ class _SenderScreenState extends State<SenderScreen>
             textInputAction: TextInputAction.next,
             enabled: true,
             maxLines: 1,
+            onSubmitted: (value) {  },
           ),
         ),
       ],

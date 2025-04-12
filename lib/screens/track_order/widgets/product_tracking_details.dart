@@ -1,28 +1,31 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import '../../../core/utils/app_color.dart';
+import '../../../models/shipment_details_response.dart';
 import '../track_map_widget.dart';
 import 'order_details_from_to.dart';
 import 'tracking_time_status.dart';
 
 class ProductTrackingDetails extends StatelessWidget {
-  ProductTrackingDetails({super.key});
+  final OrderData shippingData;
 
-  final List<Map<String, String>> trackingData = [
-    {
-      "trackingNumber": "#1234567879",
-      "customer": "Fillo Design",
-      "from": "Dhaka",
-      "to": "Sylhet",
-      "arrivalDate": "02/04/25",
-    },
-    {
-      "trackingNumber": "#9876543210",
-      "customer": "John Doe",
-      "from": "New York",
-      "to": "Los Angeles",
-      "arrivalDate": "10/06/25",
-    },
-  ];
+  const ProductTrackingDetails({super.key, required this.shippingData});
+
+
+  String _generateQRData() {
+    return jsonEncode({
+      'order_id': shippingData.orderId,
+      'product_name': shippingData.productName,
+      'tracking_number': shippingData.orderId,
+      'from': shippingData.startLocation,
+      'to': shippingData.endLocation,
+      'status': shippingData.status,
+      'deep_link': 'yourapp://track-order/${shippingData.orderId}'
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -32,15 +35,24 @@ class ProductTrackingDetails extends StatelessWidget {
         child: Column(
           children: [
             Center(
-              child: Image.asset(
-                'assets/images/Logo.png',
-                height: 100,
-                width: 100,
+              child: ClipOval(
+                child: Container(
+                  color: Colors.white, // Background color of the circle
+                  width: 120.0,
+                  height: 120.0,
+                  child: QrImageView(
+                    data: _generateQRData(),
+                    version: QrVersions.auto,
+                    size: 120.0,
+                    backgroundColor: Colors.white, // Inside QR background
+                  ),
+                ),
               ),
             ),
+
             const SizedBox(height: 10),
-            const Text(
-              "Samsung 24’’ LED monitor",
+            Text(
+              shippingData.productName ?? 'Product Name Not Available',
               maxLines: 1,
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -48,8 +60,8 @@ class ProductTrackingDetails extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   color: AppColors.textDark),
             ),
-            const Text(
-              "#123135461235",
+            Text(
+              shippingData.orderId ?? 'Order ID Not Available',
               maxLines: 1,
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -58,9 +70,15 @@ class ProductTrackingDetails extends StatelessWidget {
                   color: AppColors.textDark),
             ),
             const SizedBox(height: 20),
-            const TrackingProductFromTo(),
+            TrackingProductFromTo(
+              fromLocation: shippingData.startLocation ?? 'Origin Not Available',
+              toLocation: shippingData.endLocation ?? 'Destination Not Available',
+            ),
             const SizedBox(height: 20),
-            const TrackingTimeStatus(),
+            TrackingTimeStatus(
+              status: shippingData.status ?? 'Status Not Available',
+              progress: shippingData.progress ?? '0',
+            ),
             const SizedBox(height: 20),
             const TrackMapWidget(),
           ],

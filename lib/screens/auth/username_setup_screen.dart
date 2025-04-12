@@ -45,6 +45,7 @@ class UsernameSetupScreen extends StatelessWidget {
               textInputAction: TextInputAction.done,
               enabled: true,
               maxLines: 1,
+              onSubmitted: (value) {  },
             ),
 
             const SizedBox(height: 100),

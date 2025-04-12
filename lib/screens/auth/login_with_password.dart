@@ -59,6 +59,7 @@ class _LoginWithPasswordState extends State<LoginWithPassword> {
               maxLines: 1,
               controller: passwordController,
               onChanged: validatePassword,
+              onSubmitted: (value) {  },
               suffixIcon: isPasswordVisible
                   ? Icons.visibility
                   : Icons.visibility_off,

@@ -50,6 +50,7 @@ class _ParcelScreenState extends State<ParcelScreen> {
                 textInputAction: TextInputAction.next,
                 enabled: true,
                 maxLines: 1,
+                onSubmitted: (value) {  },
               ),
 
               Text(

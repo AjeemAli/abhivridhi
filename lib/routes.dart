@@ -54,7 +54,7 @@ class AppRoutes {
     GetPage(name: '/support', page: () => SupportScreen()),
     GetPage(name: '/search-order', page: () => SearchOrderScreen()),
     GetPage(name: '/search-result', page: () => SearchResultScreen()),
-    GetPage(name: '/scan-qr', page: () => ScanQrCodeScreen()),
+    // GetPage(name: '/scan-qr', page: () => QRScanScreen()),
     GetPage(name: '/add-shipment', page: () => AddShipmentScreen()),
     GetPage(name: '/parcel', page: () => ParcelScreen()),
     GetPage(name: '/sender', page: () => SenderScreen()),

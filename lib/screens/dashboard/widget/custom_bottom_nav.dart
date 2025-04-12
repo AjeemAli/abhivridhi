@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../core/utils/app_color.dart';
 
 class CustomBottomNav extends StatelessWidget {
-
   final int currentIndex;
   final ValueChanged<int> onTap;
 
@@ -11,8 +10,9 @@ class CustomBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  Container(
-      decoration: BoxDecoration(color: AppColors.background,
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.background,
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
@@ -34,7 +34,7 @@ class CustomBottomNav extends StatelessWidget {
           currentIndex: currentIndex,
           onTap: onTap,
           backgroundColor: Colors.white,
-          selectedItemColor: Colors.blue,
+          selectedItemColor: AppColors.primary,
           unselectedItemColor: Colors.grey,
           showSelectedLabels: true,
           showUnselectedLabels: true,
@@ -45,12 +45,17 @@ class CustomBottomNav extends StatelessWidget {
               label: "Home",
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.favorite_border),
-              label: "Favorites",
+              icon: Icon(Icons.location_disabled_rounded),
+              label: "Location",
+            ),
+
+            BottomNavigationBarItem(
+              icon: Icon(Icons.add_circle_rounded,size: 40,color:  AppColors.primary,),
+              label: "Add",
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.notifications_outlined),
-              label: "Notifications",
+              icon: Icon(Icons.chat_rounded),
+              label: "Support",
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),

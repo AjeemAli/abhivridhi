@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'dart:async';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart';
+import '../../core/services/location_service.dart';
+
 
 class TrackMapWidget extends StatefulWidget {
   const TrackMapWidget({super.key});
@@ -13,15 +17,17 @@ class TrackMapWidget extends StatefulWidget {
 class _TrackMapWidgetState extends State<TrackMapWidget> {
   final Completer<GoogleMapController> _mapController = Completer();
 
-  // From and To Coordinates
   final LatLng _fromLocation = LatLng(28.7041, 77.1025); // Delhi
   final LatLng _toLocation = LatLng(28.5355, 77.3910); // Noida
 
   Set<Marker> _markers = {};
   List<LatLng> _polylineCoordinates = [];
   late PolylinePoints polylinePoints;
+  bool _isFullScreen = false;
 
-  final String googleApiKey = "AIzaSyCcr56ZxhkvdYntPYfiUmPruGo8kt4eqWk";
+  LatLng? _currentLocation;
+
+  final String googleApiKey = "AIzaSyC3AI7lc3YalTrC0reH3sXsoAWvr9f2R8w";
 
   @override
   void initState() {
@@ -29,9 +35,10 @@ class _TrackMapWidgetState extends State<TrackMapWidget> {
     polylinePoints = PolylinePoints();
     _setMarkers();
     _drawRoute();
+    _getCurrentLocation();
   }
 
-  // Add Markers for From and To Locations
+  // Set pickup and drop markers
   void _setMarkers() {
     _markers.addAll([
       Marker(
@@ -47,7 +54,7 @@ class _TrackMapWidgetState extends State<TrackMapWidget> {
     ]);
   }
 
-  // Draw Route between From and To
+  // Draw route using PolylinePoints
   Future<void> _drawRoute() async {
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
       googleApiKey: googleApiKey,
@@ -55,7 +62,6 @@ class _TrackMapWidgetState extends State<TrackMapWidget> {
         origin: PointLatLng(_fromLocation.latitude, _fromLocation.longitude),
         destination: PointLatLng(_toLocation.latitude, _toLocation.longitude),
         mode: TravelMode.driving,
-        wayPoints: [PolylineWayPoint(location: "Szabo, Yaba Lagos Nigeria")],
       ),
     );
 
@@ -65,6 +71,21 @@ class _TrackMapWidgetState extends State<TrackMapWidget> {
             .map((point) => LatLng(point.latitude, point.longitude))
             .toList();
       });
+    } else {
+      debugPrint("Failed to get route: ${result.errorMessage}");
+    }
+  }
+
+  // Fetch current location and center the camera
+  Future<void> _getCurrentLocation() async {
+    Position? position = await LocationService.getCurrentLocation();
+    if (position != null) {
+      setState(() {
+        _currentLocation = LatLng(position.latitude, position.longitude);
+      });
+
+      final controller = await _mapController.future;
+      controller.animateCamera(CameraUpdate.newLatLngZoom(_currentLocation!, 14));
     }
   }
 
@@ -72,28 +93,61 @@ class _TrackMapWidgetState extends State<TrackMapWidget> {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(8),
-      height: 300, // Increased height for better display
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: GoogleMap(
-        initialCameraPosition: CameraPosition(
-          target: _fromLocation,
-          zoom: 12,
-        ),
-        markers: _markers,
-        polylines: {
-          Polyline(
-            polylineId: const PolylineId("route"),
-            color: Colors.blue,
-            width: 4,
-            points: _polylineCoordinates,
+      height: _isFullScreen ? MediaQuery.of(context).size.height : 300,
+      width: MediaQuery.of(context).size.width,
+      child: Stack(
+        children: [
+          GoogleMap(
+            initialCameraPosition: CameraPosition(
+              target: _fromLocation,
+              zoom: 14,
+            ),
+            markers: _markers,
+            myLocationEnabled: true,
+            myLocationButtonEnabled: false,
+            polylines: {
+              Polyline(
+                polylineId: const PolylineId("route"),
+                color: Colors.blue,
+                width: 4,
+                points: _polylineCoordinates,
+              ),
+            },
+            onMapCreated: (GoogleMapController controller) {
+              _mapController.complete(controller);
+            },
           ),
-        },
-        onMapCreated: (GoogleMapController controller) {
-          _mapController.complete(controller);
-        },
+
+          // Fullscreen button
+          Positioned(
+            top: 10,
+            right: 10,
+            child: FloatingActionButton(
+              mini: true,
+              heroTag: "fullscreen",
+              onPressed: () {
+                setState(() {
+                  _isFullScreen = !_isFullScreen;
+                });
+              },
+              child: Icon(_isFullScreen ? Icons.fullscreen_exit : Icons.fullscreen),
+            ),
+          ),
+
+          // Center on current location button
+          Positioned(
+            bottom: 16,
+            right: 10,
+            child: FloatingActionButton(
+              mini: true,
+              heroTag: "center_location",
+              onPressed: _getCurrentLocation,
+              child: const Icon(Icons.my_location),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
+

@@ -1,121 +1,85 @@
 import 'package:abhivridhiapp/screens/home/widget/offer_with_you.dart';
+import 'package:abhivridhiapp/screens/home/widget/qr_search_container.dart';
 import 'package:abhivridhiapp/screens/home/widget/stay_connect_widget.dart';
 import 'package:abhivridhiapp/screens/home/widget/tracking_card_list.dart';
 import 'package:abhivridhiapp/screens/home/widget/tracking_history.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import '../../core/services/location_controller.dart';
 import '../../core/utils/app_color.dart';
-import '../../widgets/custom_textfield.dart';
+import '../tracking/tracking_history_view_screen.dart';
 
-class HomeScreen extends StatefulWidget {
-  @override
-  _HomeScreenState createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
-  final TextEditingController _searchController = TextEditingController();
+class HomeScreen extends GetView<LocationDataController> {
+  final LocationDataController locationController = Get.put(
+    LocationDataController(),
+  );
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // White background
+      backgroundColor: Colors.white,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 130,
-            collapsedHeight: 60,
+            expandedHeight: 120,
+            collapsedHeight: 80,
             centerTitle: false,
             pinned: true,
-            backgroundColor: Colors.white,
+            backgroundColor: AppColors.background,
             elevation: 4,
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Your Location",
-                  style: TextStyle(color: Colors.black, fontSize: 12),
-                ),
-                Text(
-                  "Location",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.normal,
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
             leading: Padding(
               padding: const EdgeInsets.all(8.0),
               child: CircleAvatar(
-                radius: 20,
-                backgroundColor: AppColors.error.withOpacity(0.2),
+                radius: 15,
+                backgroundColor: AppColors.error.withOpacity(0.3),
                 child: Icon(Icons.location_on_outlined, color: AppColors.error),
               ),
             ),
             actions: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Icon(
+              IconButton(
+                onPressed: () {},
+                icon: Icon(
                   Icons.notification_important_outlined,
-                  color: Colors.grey,
+                  color: AppColors.error,
                 ),
               ),
             ],
-            flexibleSpace: FlexibleSpaceBar(),
-            bottom: PreferredSize(
-              preferredSize: Size.fromHeight(48),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SizedBox(
-                  height: 48,
-                  child: InkWell(
-                    onTap: () {
-                      Get.toNamed('/search-order');
-                    },
-                    child: Container(
-                      height: 48,
-                      width: double.infinity,
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.secondary),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Search",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.normal,
-                              color: AppColors.secondary,
-                            ),
-                          ),
-                          Icon(Icons.qr_code),
-                        ],
-                      ),
-                    ),
-                  ),
 
-                  // CustomTextField(
-                  //   controller: _searchController,
-                  //   label: "Search",
-                  //   hint: "Search for services",
-                  //   prefixIcon: Icons.search_sharp,
-                  //   suffixIcon: Icons.qr_code_scanner, // Scan Icon
-                  //   obscureText: false,
-                  //   keyboardType: TextInputType.text,
-                  //   textInputAction: TextInputAction.search,
-                  //   enabled: true,
-                  //   maxLines: 1,
-                  //   onSuffixTap: () {
-                  //     // Handle scan icon tap
-                  //   },
-                  // ),
-                ),
+            title: Obx(
+              () => Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Your Location",
+                    style: TextStyle(color: Colors.black, fontSize: 12),
+                  ),
+                  const SizedBox(height: 4),
+                  locationController.isLoading.value
+                      ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                      : Text(
+                        locationController.locationText.value,
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.normal,
+                          fontSize: 13,
+                        ),
+                      ),
+                ],
+              ),
+            ),
+
+            // Make the appbar stretch to accommodate the search box
+            flexibleSpace: FlexibleSpaceBar(
+              collapseMode: CollapseMode.pin,
+              background: Container(
+                margin: const EdgeInsets.only(
+                  top: 80,
+                ), // Adjust based on your collapsedHeight
+                child: const QRSearchBox(),
               ),
             ),
           ),
@@ -128,59 +92,56 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 10,
                   children: [
-                    const Text(
-                      "Shipment History",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    // Custom QR search widget
+                    const SectionTitle("Shipment History"),
                     TrackingCardList(),
-                    const Text(
-                      "Stay Connected",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    const SectionTitle("Stay Connected"),
                     StayConnectWidget(),
-                    const Text(
-                      "Offer For You",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    const SectionTitle("Offer For You"),
                     OfferWithYou(),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          "Tracking History",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const Text(
-                          "view all",
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.normal,
-                            color: AppColors.secondary,
+                        SectionTitle("Tracking History"),
+                        GestureDetector(
+                          onTap:
+                              () => Get.to(() => TrackingHistoryViewScreen()),
+                          child: Text(
+                            "View All",
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.normal,
+                              color: AppColors.secondary,
+                            ),
                           ),
                         ),
                       ],
                     ),
-                    TrackingHistory(),
+                    // TrackingHistory(),
+                    TrackingHistoryScreen(),
                   ],
                 ),
               ),
             ]),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class SectionTitle extends StatelessWidget {
+  final String title;
+  const SectionTitle(this.title, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Text(
+        title,
+        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
       ),
     );
   }

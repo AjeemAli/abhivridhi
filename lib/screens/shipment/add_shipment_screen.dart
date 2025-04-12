@@ -36,7 +36,7 @@ class _AddShipmentScreenState extends State<AddShipmentScreen> {
                 obscureText: false,
                 maxLines: 1,
                 keyboardType: TextInputType.text,
-                enabled: true,
+                enabled: true, onSubmitted: (value) {  },
               ),
               const SizedBox(height: 6),
 
@@ -51,6 +51,7 @@ class _AddShipmentScreenState extends State<AddShipmentScreen> {
                 maxLines: 1,
                 keyboardType: TextInputType.text,
                 enabled: true,
+                onSubmitted: (value) {  },
               ),
               const SizedBox(height: 10),
 

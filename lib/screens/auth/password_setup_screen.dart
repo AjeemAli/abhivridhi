@@ -86,6 +86,7 @@ class _PasswordSetupScreenState extends State<PasswordSetupScreen> {
               textInputAction: TextInputAction.done,
               enabled: true,
               maxLines: 1,
+              onSubmitted: (value) {  },
               onChanged: checkPasswordStrength,
             ),
             const SizedBox(height: 10),

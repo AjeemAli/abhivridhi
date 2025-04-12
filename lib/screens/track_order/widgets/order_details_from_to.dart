@@ -3,7 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:dotted_line/dotted_line.dart';
 
 class TrackingProductFromTo extends StatelessWidget {
-  const TrackingProductFromTo({super.key});
+  final String fromLocation;
+  final String toLocation;
+
+  const TrackingProductFromTo({
+    super.key,
+    required this.fromLocation,
+    required this.toLocation,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,17 +25,11 @@ class TrackingProductFromTo extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // FROM Location
-          _buildColumn("From", '54, Kumar Para Dhaka', isRight: false),
-
-          // Dotted Line in Between
+          _buildColumn("From", fromLocation, isRight: false),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.radio_button_checked,
-                color: Colors.white,
-              ), // Start Point
+              Icon(Icons.radio_button_checked, color: Colors.white),
               DottedLine(
                 direction: Axis.vertical,
                 lineLength: 25,
@@ -37,12 +38,10 @@ class TrackingProductFromTo extends StatelessWidget {
                 dashGapLength: 3,
                 lineThickness: 2,
               ),
-              Icon(Icons.location_on, color: Colors.white), // End Point
+              Icon(Icons.location_on, color: Colors.white),
             ],
           ),
-
-          // TO Location
-          _buildColumn("To", "54, Kumar Para Sylhet", isRight: true),
+          _buildColumn("To", toLocation, isRight: true),
         ],
       ),
     );
@@ -51,7 +50,7 @@ class TrackingProductFromTo extends StatelessWidget {
   Widget _buildColumn(String title, String value, {bool isRight = false}) {
     return Column(
       crossAxisAlignment:
-          isRight ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+      isRight ? CrossAxisAlignment.start : CrossAxisAlignment.end,
       children: [
         Text(title, style: TextStyle(fontSize: 12, color: AppColors.textDark)),
         SizedBox(height: 5),
