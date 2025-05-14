@@ -92,7 +92,7 @@ class TrackingHistoryScreen extends StatelessWidget {
         : 'Date not available';
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
       elevation: 1,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: InkWell(
@@ -148,7 +148,9 @@ class TrackingHistoryScreen extends StatelessWidget {
     detailsController.setShippingId(orderId);
 
     Get.to(
-          () => const TrackOrderScreen(),
+          () =>  TrackOrderScreen(
+        orderId:orderId ,
+      ),
       arguments: {'orderId': orderId, 'showBottomNav': false},
     );
   }

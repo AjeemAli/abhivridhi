@@ -7,6 +7,7 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'core/services/auth_service.dart';
 import 'core/services/search_controller.dart';
 import 'core/theme/app_theme.dart';
 import 'core/utils/controller_binding.dart';
@@ -20,7 +21,7 @@ void main() async {
 
   await Get.putAsync(() => SharedPreferences.getInstance());
   Get.put(SearchOrderController());
-
+  Get.put(AuthController());
 
   // Open the box only if it's not already open
   if (!Hive.isBoxOpen('face_images')) {

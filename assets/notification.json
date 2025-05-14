@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "title": "Courier Available",
+    "message": "A nearby courier service is now available.",
+    "timestamp": "2025-05-15T12:30:00Z"
+  },
+  {
+    "id": 2,
+    "title": "Package Shipped",
+    "message": "Your package has been successfully shipped.",
+    "timestamp": "2025-05-16T14:00:00Z"
+  },
+  {
+    "id": 3,
+    "title": "Promotion Offer",
+    "message": "Get 20% off on your next delivery.",
+    "timestamp": "2025-05-17T10:00:00Z"
+  }
+]

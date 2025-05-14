@@ -31,18 +31,18 @@ class TrackingCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 25,
+        spacing: 20,
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            spacing: 10,
+            spacing: 6,
             children: [
               _buildColumn("Tracking Number", trackingNumber),
               _buildColumn("Customer", customer),
               _buildColumn("Status", ""),
               CustomButton(
-                onPressed: () => Get.toNamed('/face-id'),
+                onPressed: () {},
                 width: 120,
                 borderRadius: 30,
                 height: 42,
@@ -96,18 +96,27 @@ class TrackingCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: isRight ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: TextStyle(fontSize: 12, color: Colors.white),
+          SizedBox(
+            width: 120,
+            child: Text(
+              title,
+              maxLines: 2,
+              style: TextStyle(fontSize: 12, color: Colors.white,),
+            ),
           ),
           SizedBox(height: 5),
           if (value.isNotEmpty)
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+            SizedBox(
+              width: 120,
+              child: Text(
+                value,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
             ),
         ],

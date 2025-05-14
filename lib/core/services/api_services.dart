@@ -1,11 +1,9 @@
 import 'package:dio/dio.dart';
-import 'package:get/get.dart' show GetxService;
+import 'package:get/get.dart' show Get, GetNavigation, GetxService;
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'auth_service.dart';
-
-
 
 
 class ApiService extends GetxService {
@@ -34,18 +32,15 @@ class ApiService extends GetxService {
       {Map<String, dynamic>? query, bool requiresAuth = false}) async {
     try {
       final headers = await _getAuthHeaders(requiresAuth);
-      print("Fetched getRequest headers: $headers");
-
       final response = await _dio.get(
         endpoint,
         queryParameters: query,
         options: Options(headers: headers),
       );
-
       return _handleResponse(response);
     } catch (e) {
       _handleError(e);
-      rethrow; // Important: rethrow the error after handling
+      rethrow;
     }
   }
 
@@ -62,7 +57,7 @@ class ApiService extends GetxService {
       return _handleResponse(response);
     } catch (e) {
       _handleError(e);
-      rethrow; // Important: rethrow the error after handling
+      rethrow;
     }
   }
 
@@ -79,42 +74,35 @@ class ApiService extends GetxService {
       return _handleResponse(response);
     } catch (e) {
       _handleError(e);
-      rethrow; // Important: rethrow the error after handling
+      rethrow;
     }
   }
 
   // Fetch Authorization Header if Required
   Future<Map<String, String>> _getAuthHeaders(bool requiresAuth) async {
-    if (!requiresAuth) {
-      return {};
+    if (!requiresAuth) return {};
+
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    if (token == null || token.isEmpty) {
+      throw Exception('Authentication token not found. Please log in again.');
     }
+    print("Token Value $token");
 
-    try {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('auth_token');
-      print("Token retrieved from SharedPreferences: $token");
-
-      if (token == null || token.isEmpty) {
-        throw Exception('Authentication token not found. Please log in again.');
-      }
-
-      return {
-        'Authorization': 'Bearer $token',
-      };
-    } catch (e) {
-      print('Error getting auth headers: $e');
-      throw Exception('Failed to get authentication token. Please log in again.');
-    }
+    return {
+      'Authorization': 'Bearer $token',
+    };
   }
 
-  // Response handler
+  // Updated response handler to allow both 200 and 201
   dynamic _handleResponse(Response response) {
     final statusCode = response.statusCode;
     if (statusCode == null) {
       throw Exception('Invalid response: No status code');
     }
 
-    if (statusCode >= 200 && statusCode < 300) {
+    if (statusCode == 200 || statusCode == 201) {
       return response.data ?? {};
     } else {
       final errorMessage = response.data?['message'] ??
@@ -136,11 +124,19 @@ class ApiService extends GetxService {
           if (error.response != null) {
             final statusCode = error.response!.statusCode;
             final errorData = error.response!.data;
-            if (statusCode == 404) {
-              errorData['message'] = 'No order found with this ID';
-            }
-            if (statusCode == 401) {
-              // Handle unauthorized (token expired or invalid)
+
+            if (statusCode == 401 || statusCode == 422) {
+              // Optional: Clear token from SharedPreferences
+              SharedPreferences.getInstance().then((prefs) {
+                prefs.remove('auth_token');
+              });
+
+              // Redirect to login screen
+              Future.delayed(Duration.zero, () {
+               Get.offAllNamed('/login');
+
+              });
+
               final message = errorData is Map
                   ? errorData['message'] ?? 'Session expired. Please log in again.'
                   : 'Session expired. Please log in again.';
@@ -150,6 +146,7 @@ class ApiService extends GetxService {
             final message = errorData is Map
                 ? errorData['message'] ?? error.response?.statusMessage ?? 'Server error'
                 : error.response?.statusMessage ?? 'Server error';
+
             throw Exception('Server error ($statusCode): $message');
           }
           throw Exception('Server error: ${error.message}');
@@ -166,12 +163,14 @@ class ApiService extends GetxService {
           throw Exception('Security error: Invalid certificate');
       }
     } else if (error is Exception) {
-      throw error; // Already an Exception, just rethrow
+      throw error;
     } else {
       throw Exception('Unexpected error occurred. Please try again later.');
     }
   }
+
 }
+
 
 
 

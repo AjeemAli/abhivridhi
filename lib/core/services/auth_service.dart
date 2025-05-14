@@ -3,16 +3,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'api_services.dart';
 
 
+
 class AuthController extends GetxController {
   final ApiService _apiService = Get.put(ApiService());
 
-  // Observables for loading and user data
   var isLoading = false.obs;
 
   var mobile = ''.obs;
   var username = ''.obs;
   var password = ''.obs;
-
 
   // Login Function
   Future<void> login() async {
@@ -31,12 +30,19 @@ class AuthController extends GetxController {
         'password': password.value.trim(),
       });
 
-      if (response != null && response['user'] != null && response['user']['token'] != null) {
-        final String token = response['user']['token'];
-
-        // Store the token in SharedPreferences
+      if (response != null && response['token'] != null) {
         final SharedPreferences prefs = await SharedPreferences.getInstance();
+        final String token = response['token'];
+        final Map<String, dynamic> user = response['user'];
+
+        // Save token
         await prefs.setString('auth_token', token);
+
+        // Save additional user data if needed
+        await prefs.setInt('user_id', user['id']);
+        await prefs.setString('user_name', user['name'] ?? '');
+        await prefs.setString('user_mobile', user['mobile'] ?? '');
+        await prefs.setString('user_type', user['user_type'] ?? '');
 
         Get.snackbar('Success', 'Login successful', snackPosition: SnackPosition.BOTTOM);
         Get.offAllNamed('/dashboard');
@@ -49,8 +55,6 @@ class AuthController extends GetxController {
       isLoading.value = false;
     }
   }
-
-
 
   // Signup Function
   Future<void> signup() async {
@@ -67,7 +71,7 @@ class AuthController extends GetxController {
         'password': password.value.trim(),
       });
 
-      if (response != null && response['status'] == true) {
+      if (response != null) {
         Get.snackbar('Success', 'Signup successful', snackPosition: SnackPosition.BOTTOM);
         Get.offNamed('/login-with-phone');
       } else {
@@ -80,23 +84,29 @@ class AuthController extends GetxController {
     }
   }
 
-
   // Logout Function
   Future<void> logout() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('auth_token');
+    await prefs.remove('user_id');
+    await prefs.remove('user_name');
+    await prefs.remove('user_mobile');
+    await prefs.remove('user_type');
 
     Get.offAllNamed('/login-with-phone');
     Get.snackbar('Success', 'Logged out successfully', snackPosition: SnackPosition.BOTTOM);
   }
-
 }
 
-
+// Utility function to retrieve the auth token
 Future<String?> getAuthToken() async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('auth_token');
   print("Token retrieved from SharedPreferences: $token");
   return token;
 }
+
+
+
+
 

@@ -11,7 +11,7 @@ class PhoneSignupScreen extends StatelessWidget {
 
   final AuthController controller = Get.put(AuthController());
   final TextEditingController phoneController = TextEditingController();
-  final TextEditingController countryCodeController = TextEditingController();
+  final PhoneNumber initialNumber = PhoneNumber(isoCode: 'IN', dialCode: '+91');
 
   @override
   Widget build(BuildContext context) {
@@ -35,47 +35,35 @@ class PhoneSignupScreen extends StatelessWidget {
             ),
             const SizedBox(height: 50),
 
-            // Phone Number Input
+            // Phone Number Input (only once)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.grey),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Row(
-                children: [
-                  // Country Code & Flag
-                  SizedBox(
-                    width: 110,
-                    child: InternationalPhoneNumberInput(
-                      onInputChanged: (PhoneNumber number) {
-                        countryCodeController.text = number.dialCode ?? '+91';
-                      },
-                      selectorConfig: const SelectorConfig(
-                        leadingPadding: 0,
-                        selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
-                      ),
-                      ignoreBlank: true,
-                      autoValidateMode: AutovalidateMode.disabled,
-                      textFieldController: countryCodeController,
-                      inputDecoration: const InputDecoration(
-                        border: InputBorder.none,
-                      ),
-                    ),
-                  ),
-
-                  // Phone Number Input
-                  Expanded(
-                    child: TextField(
-                      controller: phoneController,
-                      keyboardType: TextInputType.phone,
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                        hintText: "Enter phone number",
-                      ),
-                    ),
-                  ),
-                ],
+              child: InternationalPhoneNumberInput(
+                onInputChanged: (PhoneNumber number) {
+                  print('Phone number: ${number.phoneNumber}');
+                },
+                selectorConfig: const SelectorConfig(
+                  selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
+                  leadingPadding: 0,
+                  showFlags: true,
+                  useEmoji: true,
+                ),
+                initialValue: initialNumber,
+                textFieldController: phoneController,
+                inputDecoration: const InputDecoration(
+                  hintText: 'Enter phone number',
+                  border: InputBorder.none,
+                ),
+                formatInput: false,
+                ignoreBlank: false,
+                autoValidateMode: AutovalidateMode.disabled,
+                selectorTextStyle: const TextStyle(color: Colors.black),
+                keyboardType: TextInputType.number,
+                countries: ['IN'], // Only India
               ),
             ),
 
@@ -93,9 +81,7 @@ class PhoneSignupScreen extends StatelessWidget {
                   return;
                 }
 
-                // Save data in controller for later API call
-                controller.mobile.value =
-                    '${countryCodeController.text}${phoneController.text.trim()}';
+                controller.mobile.value = phoneController.text.trim();
                 debugPrint("Phone no ${controller.mobile.value}");
                 Get.toNamed('/username-setup');
               },
@@ -117,3 +103,4 @@ class PhoneSignupScreen extends StatelessWidget {
     );
   }
 }
+

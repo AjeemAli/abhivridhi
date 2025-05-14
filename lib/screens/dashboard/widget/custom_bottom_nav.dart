@@ -45,8 +45,8 @@ class CustomBottomNav extends StatelessWidget {
               label: "Home",
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.location_disabled_rounded),
-              label: "Location",
+              icon: Icon(Icons.notification_important_outlined),
+              label: "Info",
             ),
 
             BottomNavigationBarItem(

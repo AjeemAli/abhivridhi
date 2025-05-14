@@ -25,7 +25,6 @@ class ProfileController extends GetxController {
       isLoading(true);
       errorMessage('');
       print("Starting profile fetch...");
-
       final response = await _apiService.getRequest(
         'app/get_user',
         requiresAuth: true,
@@ -47,11 +46,6 @@ class ProfileController extends GetxController {
     }
   }
 
-  void clearProfile() {
-    profile.value = ProfileModel();
-    errorMessage('');
-    hasFetched = false;
-    fetchProfile();
-  }
+
 }
 

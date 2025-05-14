@@ -1,29 +1,124 @@
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../screens/shipment/parcel_screen.dart';
 import '../../screens/shipment/sender_screen.dart';
+import '../utils/app_color.dart';
 import 'api_services.dart';
 
 class AddShipmentController extends GetxController {
+
+  var selectedVehicle = ''.obs;
+  var selectedLabourOptions = ''.obs;
+  var isFragileHandling = false.obs;
+  var isSameDayDelivery = false.obs;
+  var isCashOnDelivery = false.obs;
+  var latitude = 0.0.obs;
+  var longitude = 0.0.obs;
+  var deliveryLatitude = 0.0.obs;
+  var deliveryLongitude = 0.0.obs;
+
+  void selectVehicle(String vehicle) {
+    if (selectedVehicle.value == vehicle) {
+      selectedVehicle.value = '';
+    } else {
+      selectedVehicle.value = vehicle;
+    }
+  }
+
+
+  void toggleFragileHandling() {
+    isFragileHandling.toggle();
+    if (isFragileHandling.value) {
+      price.value += 40;
+    } else {
+      price.value -= 40;
+    }
+  }
+
+  void toggleSameDayDelivery() {
+    isSameDayDelivery.toggle();
+    if (isSameDayDelivery.value) {
+      price.value += 100;
+    } else {
+      price.value -= 100;
+    }
+  }
+
+  void toggleCashOnDelivery() {
+    isCashOnDelivery.toggle();
+    if (isCashOnDelivery.value) {
+      price.value += 20;
+    } else {
+      price.value -= 20;
+    }
+  }
+
+  bool hasAdditionalServices() {
+    return isNextDayDelivery.value ||
+        isOrderTracking.value ||
+        isOversize.value ||
+        isFragileHandling.value ||
+        isSameDayDelivery.value ||
+        isCashOnDelivery.value;
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    autoFillFromLocation();
+  }
+
   // Text controllers
-  final List<TextEditingController> textControllers = List.generate(7, (_) => TextEditingController());
+  final List<TextEditingController> textControllers = List.generate(
+    16,
+        (_) => TextEditingController(),
+  );
 
   // Mapping indices for better readability
   static const int fromIndex = 0;
   static const int toIndex = 1;
-  static const int nameIndex = 2;
-  static const int addressIndex = 3;
-  static const int phoneIndex = 4;
-  static const int emailIndex = 5;
-  static const int gstIndex = 6;
+  static const int nameSenderIndex = 2;
+  static const int mobileSenderIndex = 3;
+  static const int zipSenderIndex = 4;
+  static const int addressSenderIndex = 5;
+  static const int officeSenderIndex = 6;
+  static const int emailSenderIndex = 7;
+  static const int nameReceiverIndex = 8;
+  static const int mobileReceiverIndex = 9;
+  static const int zipReceiverIndex = 10;
+  static const int addressReceiverIndex = 11;
+  static const int officeReceiverIndex = 12;
+  static const int emailReceiverIndex = 13;
+  static const int gstSenderIndex = 14;
+  static const int gstReceiverIndex = 15;
+
 
   final TextEditingController zipController = TextEditingController();
+  final TextEditingController pickupLabourController = TextEditingController();
+  final deliveryLabourController = TextEditingController();
+
+  void updatePickupLabour(String value) {
+    if (value.isNotEmpty) {
+      int val = int.tryParse(value) ?? 0;
+      if (val >= 1 && val <= 5) {
+        selectedLabourOptions.value = val.toString();
+        calculatePrice();
+      }
+    } else {
+      selectedLabourOptions.value = 0.toString();
+    }
+  }
+
 
   // Reactive variables
   final weight = 2.0.obs;
   final packageSize = 200.0.obs;
   final basePrice = 50.0;
   final price = 0.0.obs;
+  final totalPrice = 0.0.obs;
   final selectedOption = "Parcel".obs;
 
   // Additional service costs
@@ -37,7 +132,7 @@ class AddShipmentController extends GetxController {
   final isOversize = false.obs;
 
   final isLoading = false.obs;
-  final isVisible = false.obs; // Controls weight slider visibility
+  final isVisible = false.obs;
   final ApiService _apiService = Get.put(ApiService());
 
   @override
@@ -68,7 +163,10 @@ class AddShipmentController extends GetxController {
 
     // Add cost for Next-Day Delivery
     if (isNextDayDelivery.value) {
-      double additionalCost = weight.value > 2 ? (weight.value - 2) * (nextDayDeliveryCost.value * 0.10) : 0;
+      double additionalCost =
+      weight.value > 2
+          ? (weight.value - 2) * (nextDayDeliveryCost.value * 0.10)
+          : 0;
       totalPrice += nextDayDeliveryCost.value + additionalCost;
     }
 
@@ -79,7 +177,8 @@ class AddShipmentController extends GetxController {
 
     // Extra charge for package size over 200cm
     if (packageSize.value > 200) {
-      double additionalSizeCost = packageSize.value > 500
+      double additionalSizeCost =
+      packageSize.value > 500
           ? ((packageSize.value - 500) / 50) * (oversizeCost.value * 0.02)
           : 0;
       totalPrice += oversizeCost.value + additionalSizeCost;
@@ -129,7 +228,10 @@ class AddShipmentController extends GetxController {
   // **Validate input fields**
   bool isValidInput() {
     if (textControllers[fromIndex].text.trim().isEmpty) {
-      showSnackbar("Missing Information", "Please enter the starting location.");
+      showSnackbar(
+        "Missing Information",
+        "Please enter the starting location.",
+      );
       return false;
     }
     if (textControllers[toIndex].text.trim().isEmpty) {
@@ -144,74 +246,359 @@ class AddShipmentController extends GetxController {
     return true;
   }
 
-  // **Check if additional services are selected**
-  bool hasAdditionalServices() {
-    if (!isNextDayDelivery.value && !isOrderTracking.value && !isOversize.value) {
-      showSnackbar("No Additional Service", "You have not selected any additional services.");
-      return false;
-    }
-    Get.to(() => SenderScreen());
-    return true;
-  }
 
-  // **Debugging utility**
-  void printAllValues() {
-    debugPrint("Shipping From: ${textControllers[fromIndex].text}");
-    debugPrint("Shipping To: ${textControllers[toIndex].text}");
-    debugPrint("Selected Option: ${selectedOption.value}");
-    debugPrint("Weight: ${weight.value} kg");
-    debugPrint("Package Size: ${packageSize.value} cm");
-    debugPrint("Total Price: ₹${price.value.toStringAsFixed(2)}");
-    debugPrint("Next-Day Delivery: ${isNextDayDelivery.value ? '₹${nextDayDeliveryCost.value}' : 'No'}");
-    debugPrint("Order Tracking: ${isOrderTracking.value ? '₹${orderTrackingCost.value}' : 'No'}");
-    debugPrint("Oversize Charge: ${isOversize.value ? '₹${oversizeCost.value}' : 'No'}");
-  }
 
-  // **Submit shipping details**
   Future<void> addShipping() async {
     if (!isValidInput()) return;
-
     final requestData = {
-      "name": textControllers[nameIndex].text.trim(),
-      "price": price.value.toStringAsFixed(2),
-      "start_location": textControllers[fromIndex].text.trim(),
-      "end_location": textControllers[toIndex].text.trim(),
-      "weight": "${weight.value}kg",
-      "package_size": "${packageSize.value}cm",
-      "address": textControllers[addressIndex].text.trim(),
-      "phone": textControllers[phoneIndex].text.trim(),
-      "email": textControllers[emailIndex].text.trim(),
-      "Zip_code": zipController.text.trim(),
-      "type": selectedOption.value,
-      "next_day_delivery": isNextDayDelivery.value ? nextDayDeliveryCost.value.toString() : "0",
-      "order_tracking": isOrderTracking.value ? orderTrackingCost.value.toString() : "0",
-      "oversize": isOversize.value ? oversizeCost.value.toString() : "0",
+      "pickup_location": textControllers[fromIndex].text.trim(),
+      "delivery_location": textControllers[toIndex].text.trim(),
+      "vehicle_type": selectedVehicle.value,
+      "labour_type": selectedLabourOptions.value,
+      "courier_type": selectedOption.value,
+      "weight": weight.value,
+      "price": price.value,
+      "name_sender": textControllers[nameSenderIndex].text.trim(),
+      "mobile_sender": textControllers[mobileSenderIndex].text.trim(),
+      "zip_sender": textControllers[zipSenderIndex].text.trim(),
+      "address_sender": textControllers[addressSenderIndex].text.trim(),
+      "office_sender": textControllers[officeSenderIndex].text.trim(),
+      "email_sender": textControllers[emailSenderIndex].text.trim(),
+      "name_receiver": textControllers[nameReceiverIndex].text.trim(),
+      "mobile_receiver": textControllers[mobileReceiverIndex].text.trim(),
+      "zip_receiver": textControllers[zipReceiverIndex].text.trim(),
+      "address_receiver": textControllers[addressReceiverIndex].text.trim(),
+      "office_receiver": textControllers[officeReceiverIndex].text.trim(),
+      "email_receiver": textControllers[emailReceiverIndex].text.trim(),
+
+      "home_delivery": hasAdditionalServices(),
+      "order_tracking": isOrderTracking.value,
+      "over_sized": isOversize.value,
+      "fragile_handling": isFragileHandling.value,
+      "same_day_delivery": isSameDayDelivery.value,
+      "cash_on_delivery": isCashOnDelivery.value,
+      "total_amount": price.value,
     };
+
 
     try {
       isLoading.value = true;
       final response = await _apiService.postRequest(
-        "admin/add_shipping",
+        "app/add_shipping",
         data: requestData,
         requiresAuth: true,
       );
 
       if (response != null) {
         showSnackbar("Success", "Shipping added successfully.");
-        Get.offAllNamed('/cart');
+        Get.offAllNamed('/dashboard');
       } else {
         showSnackbar("Error", "Failed to add shipment. Try again.");
       }
     } catch (e) {
       showSnackbar("Error", e.toString());
-    }
-    finally{
+    } finally {
       isLoading.value = false; // Stop loading
     }
   }
 
-  // **Show snackbar notifications**
   void showSnackbar(String title, String message) {
     Get.snackbar(title, message, snackPosition: SnackPosition.BOTTOM);
   }
+
+  Future<void> autoFillFromLocation() async {
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        showSnackbar("Location Error", "Enable location services.");
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.deniedForever || permission == LocationPermission.denied) {
+          showSnackbar("Location Error", "Location permission denied.");
+          return;
+        }
+      }
+
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+
+      if (placemarks.isNotEmpty) {
+        final Placemark place = placemarks.first;
+        final address = "${place.locality}, ${place.subAdministrativeArea}, ${place.administrativeArea}, ${place.country}";
+        textControllers[fromIndex].text = address;
+        latitude.value = position.latitude; // Store latitude
+        longitude.value = position.longitude; // Store longitude
+      }
+    } catch (e) {
+      showSnackbar("Error", "Failed to get location: $e");
+    }
+  }
+  // In AddShipmentController
+  bool isServiceSelected(String serviceName) {
+    switch (serviceName) {
+      case "Order Tracking":
+        return isOrderTracking.value;
+      case "Oversize Package":
+        return isOversize.value;
+      case "Fragile Handling":
+        return isFragileHandling.value;
+      case "Same Day Delivery":
+        return isSameDayDelivery.value;
+      case "Cash on Delivery":
+        return isCashOnDelivery.value;
+      default:
+        return false;
+    }
+  }
+
+  void toggleService(String serviceName) {
+    switch (serviceName) {
+      case "Order Tracking":
+        toggleOrderTracking();
+        break;
+      case "Oversize Package":
+        toggleOversize();
+        break;
+      case "Fragile Handling":
+        toggleFragileHandling();
+        break;
+      case "Same Day Delivery":
+        toggleSameDayDelivery();
+        break;
+      case "Cash on Delivery":
+        toggleCashOnDelivery();
+        break;
+    }
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// class AddShipmentController extends GetxController {
+//   // Text controllers
+//   final List<TextEditingController> textControllers =
+//   List.generate(7, (_) => TextEditingController());
+//
+//   static const int fromIndex = 0;
+//   static const int toIndex = 1;
+//   static const int nameIndex = 2;
+//   static const int addressIndex = 3;
+//   static const int phoneIndex = 4;
+//   static const int emailIndex = 5;
+//   static const int gstIndex = 6;
+//
+//   final TextEditingController zipController = TextEditingController();
+//
+//   // Reactive variables
+//   final weight = 2.0.obs;
+//   final packageSize = 200.0.obs;
+//   final basePrice = 50.0;
+//   final price = 0.0.obs;
+//   final selectedOption = "Parcel".obs;
+//
+//   final nextDayDeliveryCost = 50.0.obs;
+//   final orderTrackingCost = 30.0.obs;
+//   final oversizeCost = 30.0.obs;
+//
+//   final isNextDayDelivery = false.obs;
+//   final isOrderTracking = false.obs;
+//   final isOversize = false.obs;
+//
+//   final isLoading = false.obs;
+//   final isVisible = false.obs;
+//
+//   final ApiService _apiService = Get.put(ApiService());
+//
+//   @override
+//   void onClose() {
+//     for (var controller in textControllers) {
+//       controller.dispose();
+//     }
+//     zipController.dispose();
+//     super.onClose();
+//   }
+//
+//   void toggleWeightSelection() => isVisible.toggle();
+//
+//   void calculatePrice() {
+//     double totalPrice = basePrice;
+//
+//     if (weight.value > 2) {
+//       totalPrice += (weight.value - 2) * (basePrice * 0.10);
+//       if (!isNextDayDelivery.value) {
+//         isNextDayDelivery.value = true;
+//       }
+//     }
+//
+//     if (isNextDayDelivery.value) {
+//       double additionalCost =
+//       weight.value > 2 ? (weight.value - 2) * (nextDayDeliveryCost.value * 0.10) : 0;
+//       totalPrice += nextDayDeliveryCost.value + additionalCost;
+//     }
+//
+//     if (isOrderTracking.value) {
+//       totalPrice += orderTrackingCost.value;
+//     }
+//
+//     if (packageSize.value > 200) {
+//       double additionalSizeCost = packageSize.value > 500
+//           ? ((packageSize.value - 500) / 50) * (oversizeCost.value * 0.02)
+//           : 0;
+//       totalPrice += oversizeCost.value + additionalSizeCost;
+//
+//       if (packageSize.value > 300 && !isOversize.value) {
+//         isOversize.value = true;
+//       }
+//     }
+//
+//     if (isOversize.value) {
+//       totalPrice += oversizeCost.value;
+//     }
+//
+//     price.value = totalPrice;
+//   }
+//
+//   void onWeightChanged(double value) {
+//     weight.value = value;
+//     calculatePrice();
+//   }
+//
+//   void onPackageSizeChanged(double value) {
+//     packageSize.value = value;
+//     calculatePrice();
+//   }
+//
+//   void toggleNextDayDelivery() {
+//     isNextDayDelivery.toggle();
+//     calculatePrice();
+//   }
+//
+//   void toggleOrderTracking() {
+//     isOrderTracking.toggle();
+//     calculatePrice();
+//   }
+//
+//   void toggleOversize() {
+//     isOversize.toggle();
+//     calculatePrice();
+//   }
+//
+//   bool isValidInput() {
+//     if (textControllers[fromIndex].text.trim().isEmpty) {
+//       showSnackbar("Missing Information", "Please enter the starting location.");
+//       return false;
+//     }
+//     if (textControllers[toIndex].text.trim().isEmpty) {
+//       showSnackbar("Missing Information", "Please enter the destination.");
+//       return false;
+//     }
+//     if (textControllers[nameIndex].text.trim().isEmpty) {
+//       showSnackbar("Missing Information", "Please enter the recipient name.");
+//       return false;
+//     }
+//     if (textControllers[phoneIndex].text.trim().length < 10) {
+//       showSnackbar("Invalid Phone", "Enter a valid phone number.");
+//       return false;
+//     }
+//     if (zipController.text.trim().isEmpty) {
+//       showSnackbar("Missing Zip", "Please enter the zip code.");
+//       return false;
+//     }
+//     return true;
+//   }
+//
+//   bool hasAdditionalServices() {
+//     if (!isNextDayDelivery.value && !isOrderTracking.value && !isOversize.value) {
+//       showSnackbar("No Additional Service", "You have not selected any additional services.");
+//       return false;
+//     }
+//     Get.to(() => SenderScreen());
+//     return true;
+//   }
+//
+//   void printAllValues() {
+//     debugPrint("Shipping From: ${textControllers[fromIndex].text}");
+//     debugPrint("Shipping To: ${textControllers[toIndex].text}");
+//     debugPrint("Selected Option: ${selectedOption.value}");
+//     debugPrint("Weight: ${weight.value} kg");
+//     debugPrint("Package Size: ${packageSize.value} cm");
+//     debugPrint("Total Price: ₹${price.value.toStringAsFixed(2)}");
+//     debugPrint("Next-Day Delivery: ${isNextDayDelivery.value ? '₹${nextDayDeliveryCost.value}' : 'No'}");
+//     debugPrint("Order Tracking: ${isOrderTracking.value ? '₹${orderTrackingCost.value}' : 'No'}");
+//     debugPrint("Oversize Charge: ${isOversize.value ? '₹${oversizeCost.value}' : 'No'}");
+//   }
+//
+//   Future<void> addShipping() async {
+//     if (!isValidInput()) return;
+//
+//     final requestData = {
+//       "name": textControllers[nameIndex].text.trim(),
+//       "price": price.value.toStringAsFixed(2),
+//       "start_location": textControllers[fromIndex].text.trim(),
+//       "end_location": textControllers[toIndex].text.trim(),
+//       "weight": "${weight.value}kg",
+//       "package_size": "${packageSize.value}cm",
+//       "address": textControllers[addressIndex].text.trim(),
+//       "phone": textControllers[phoneIndex].text.trim(),
+//       "email": textControllers[emailIndex].text.trim(),
+//       "Zip_code": zipController.text.trim(),
+//       "type": selectedOption.value,
+//       "next_day_delivery": isNextDayDelivery.value ? nextDayDeliveryCost.value.toString() : "0",
+//       "order_tracking": isOrderTracking.value ? orderTrackingCost.value.toString() : "0",
+//       "oversize": isOversize.value ? oversizeCost.value.toString() : "0",
+//     };
+//
+//     try {
+//       isLoading.value = true;
+//       final response = await _apiService.postRequest(
+//         "app/add_shipping",
+//         data: requestData,
+//         requiresAuth: true,
+//       );
+//
+//       if (response != null) {
+//         showSnackbar("Success", "Shipping added successfully.");
+//         Get.offAllNamed('/dashboard'); // Redirect to Dashboard screen
+//       } else {
+//         showSnackbar("Error", "Failed to add shipment. Try again.");
+//       }
+//     } catch (e) {
+//       showSnackbar("Error", e.toString());
+//     } finally {
+//       isLoading.value = false;
+//     }
+//   }
+//
+//   void showSnackbar(String title, String message) {
+//     Get.snackbar(title, message, snackPosition: SnackPosition.BOTTOM);
+//   }
+// }

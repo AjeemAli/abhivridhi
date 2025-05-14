@@ -127,7 +127,7 @@ class _PasswordSetupScreenState extends State<PasswordSetupScreen> {
 
             // Continue Button
             Obx(() => controller.isLoading.value
-                ? const CircularProgressIndicator()
+                ?    SizedBox(width: 50,height: 50,child: const Center(child: CircularProgressIndicator()))
                 : CustomButton(
               onPressed: isPasswordValid(passwordController.text)
                   ? () {

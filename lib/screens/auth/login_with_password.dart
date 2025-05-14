@@ -80,7 +80,7 @@ class _LoginWithPasswordState extends State<LoginWithPassword> {
 
             // Continue Button with Loader Integration
             Obx(() => controller.isLoading.value
-                ? const Center(child: CircularProgressIndicator())
+                ? SizedBox(width: 50,height: 50,child: const Center(child: CircularProgressIndicator()))
                 : CustomButton(
               onPressed: isPasswordValid
                   ? () {

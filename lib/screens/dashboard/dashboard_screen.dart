@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart'; // Make sure you import the Get package if not already included
 
 import '../../../core/utils/app_color.dart';
+import '../../core/services/get_shipping_controller.dart';
 import '../home/home_screen.dart';
+import '../notification_screen.dart';
 import '../profile/user_profile_screen.dart';
 import '../track_order/track_order_screen.dart';
 
@@ -17,12 +19,16 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  final GetShippingController shippingController = Get.put(
+    GetShippingController(),
+  );
   int _selectIndex = 0;
   DateTime? _lastBackPressed;
 
   final List<Widget> _pages = [
     HomeScreen(),
-    const TrackOrderScreen(showBottomNav: true),
+    NotificationScreen(),
+    // TrackOrderScreen(showBottomNav: true,orderId: '',),
     AddShipmentScreen(),
     SupportScreen(),
     UserProfileScreen(),

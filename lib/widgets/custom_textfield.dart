@@ -1,3 +1,4 @@
+import 'package:abhivridhiapp/core/utils/app_color.dart';
 import 'package:flutter/material.dart';
 
 class CustomTextField extends StatelessWidget {
@@ -57,7 +58,7 @@ class CustomTextField extends StatelessWidget {
         hintText: hint,
         hintStyle:  TextStyle(color: Colors.grey,fontWeight: fontWeight),
         prefixIcon:
-            prefixIcon != null ? Icon(prefixIcon, color: labelColor) : null,
+            prefixIcon != null ? Icon(prefixIcon, color: AppColors.primary) : null,
         suffixIcon:
             suffixIcon != null
                 ? GestureDetector(

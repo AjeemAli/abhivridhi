@@ -1,11 +1,16 @@
+import 'package:abhivridhiapp/screens/profile/change_password_sreen.dart';
 import 'package:flutter/material.dart';
 
+import '../../../core/services/auth_service.dart';
 import '../../../core/utils/app_color.dart';
 import 'package:get/get.dart';
 
-class BasicInfoWidget extends StatelessWidget {
-  const BasicInfoWidget({super.key});
+import '../billing_history_screen.dart';
+import '../edit_profile_screen.dart';
 
+class BasicInfoWidget extends StatelessWidget {
+   BasicInfoWidget({super.key});
+final logout=   Get.put(AuthController());
   void _navigateToScreen(BuildContext context, String route) {
     Get.toNamed(route);
   }
@@ -37,25 +42,25 @@ class BasicInfoWidget extends StatelessWidget {
             _buildListTile(
               icon: Icons.account_circle,
               title: 'Account',
-              onTap: () => _navigateToScreen(context, '/account'),
+              onTap: () => Get.to(()=> EditProfileScreen()),
             ),
             const Divider(),
             _buildListTile(
               icon: Icons.lock,
               title: 'Change Password',
-              onTap: () => _navigateToScreen(context, '/change_password'),
+              onTap: () => Get.to(()=> ChangePasswordScreen()),
             ),
             const Divider(),
             _buildListTile(
               icon: Icons.payments_outlined,
               title: 'Billing/Payment',
-              onTap: () => _navigateToScreen(context, '/payment'),
+              onTap: () => Get.to(()=> BillingHistoryScreen()),
             ),
             const Divider(),
             _buildListTile(
               icon: Icons.check_box_outlined,
               title: 'Track Shipments',
-              onTap: () => _navigateToScreen(context, '/shipments'),
+              onTap: () => Get.to(()=> BillingHistoryScreen()),
             ),
             const Divider(),
             _buildListTile(
@@ -63,7 +68,10 @@ class BasicInfoWidget extends StatelessWidget {
               title: 'Logout',
               iconColor: Colors.red,
               textStyle: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-              onTap: () => _navigateToScreen(context, '/logout'),
+              onTap: () {
+                final authController = Get.find<AuthController>();
+                authController.logout();
+              },
             ),
           ],
         ),

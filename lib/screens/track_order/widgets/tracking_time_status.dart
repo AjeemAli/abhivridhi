@@ -7,11 +7,13 @@ import 'circle_prograce_widget.dart';
 class TrackingTimeStatus extends StatelessWidget {
   final String status;
   final String progress;
+  final String time;
 
   const TrackingTimeStatus({
     super.key,
     required this.status,
     required this.progress,
+    required this.time,
   });
 
   @override
@@ -55,7 +57,7 @@ class TrackingTimeStatus extends StatelessWidget {
                     _buildColumn("Status", status, isRight: true),
                     _buildColumn("Progress", "$progress%", isRight: true),
                     _buildColumn("Estimated Delivery",
-                        "2PM (Mar,20,2025)", isRight: true),
+                        "$time", isRight: true),
                   ],
                 )
               ],
@@ -79,7 +81,7 @@ class TrackingTimeStatus extends StatelessWidget {
           title,
           style: TextStyle(
             fontSize: 18,
-            color: AppColors.text,
+            color: AppColors.textDark,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -93,7 +95,7 @@ class TrackingTimeStatus extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.normal,
-              color: AppColors.text,
+              color: AppColors.textDark,
             ),
           ),
         ),
@@ -101,3 +103,46 @@ class TrackingTimeStatus extends StatelessWidget {
     );
   }
 }
+
+
+// class TrackingTimeStatus extends StatelessWidget {
+//   final String status;
+//   final String progress;
+//
+//   const TrackingTimeStatus({
+//     super.key,
+//     required this.status,
+//     required this.progress,
+//   });
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       padding: const EdgeInsets.all(12),
+//       decoration: BoxDecoration(
+//         color: AppColors.background,
+//         border: Border.all(),
+//         borderRadius: BorderRadius.circular(15),
+//       ),
+//       child: Column(
+//         children: [
+//           _buildRow("Status", status),
+//           _buildRow("Progress", "$progress%"),
+//           _buildRow("Estimated Delivery", "2PM (Mar 20, 2025)"),
+//         ],
+//       ),
+//     );
+//   }
+//
+//   Widget _buildRow(String title, String value) {
+//     return Padding(
+//       padding: const EdgeInsets.symmetric(vertical: 6.0),
+//       child: Row(
+//         children: [
+//           Text("$title: ", style: const TextStyle(fontWeight: FontWeight.bold)),
+//           Expanded(child: Text(value)),
+//         ],
+//       ),
+//     );
+//   }
+// }

@@ -183,7 +183,9 @@ import '../track_order/track_order_screen.dart';
       // Navigate to details screen
 
       Get.to(
-              () => const TrackOrderScreen(),
+              () =>  TrackOrderScreen(
+                orderId:orderId ,
+              ),
           arguments: {
             'orderId': orderId,
             'showBottomNav': false,

@@ -29,11 +29,14 @@ class _TrackingCardListState extends State<TrackingCardList> {
 
   void _navigateToDetails(String orderId) {
     final detailsController = Get.put(ShippingDetailsMoreController());
+    final orderDetailsController = Get.put(ShippingDetailsMoreController());
     detailsController.setShippingId(orderId);
-
+orderDetailsController.id;
     Get.to(
-      () => const TrackOrderScreen(),
-      arguments: {'orderId': orderId, 'showBottomNav': false},
+          () =>  TrackOrderScreen(
+        orderId:orderId ,
+      ),
+
     );
   }
 
@@ -59,7 +62,7 @@ class _TrackingCardListState extends State<TrackingCardList> {
       return Column(
         children: [
           SizedBox(
-            height: 265,
+            height: 275,
             child: PageView.builder(
               controller: _pageController,
               itemCount: shippingData.length,

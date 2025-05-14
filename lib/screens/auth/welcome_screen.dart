@@ -27,7 +27,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     String? token = await getAuthToken();
 
     // Navigate based on authentication token
-    Future.delayed(const Duration(seconds: 5), () {
+    Future.delayed(const Duration(seconds: 3), () {
       if (token != null && token.isNotEmpty) {
         Get.offNamed('/dashboard');
         print('Token value $token');
