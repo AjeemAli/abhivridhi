@@ -226,11 +226,6 @@ import '../../widgets/custom_textfield.dart';
 //   }
 // }
 
-
-
-
-
-
 class ShipmentFormScreen extends StatelessWidget {
   final ValueNotifier<String> senderType = ValueNotifier('Individual');
   final ValueNotifier<String> receiverType = ValueNotifier('Individual');
@@ -247,13 +242,19 @@ class ShipmentFormScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Sender Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              "Sender Details",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             _buildRadioButtons(senderType),
             _buildFormSenderFields(senderType),
 
             const SizedBox(height: 20),
 
-            const Text("Receiver Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              "Receiver Details",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             _buildRadioButtons(receiverType),
             _buildFormReceiverFields(receiverType),
 
@@ -261,22 +262,79 @@ class ShipmentFormScreen extends StatelessWidget {
 
             CustomButton(
               onPressed: () {
-                final nameSender = controller.textControllers[AddShipmentController.nameSenderIndex].text.trim();
-                final mobileSender = controller.textControllers[AddShipmentController.mobileSenderIndex].text.trim();
-                final zipSender = controller.textControllers[AddShipmentController.zipSenderIndex].text.trim();
-                final addressSender = controller.textControllers[AddShipmentController.addressSenderIndex].text.trim();
-                final officeSender = controller.textControllers[AddShipmentController.officeSenderIndex].text.trim();
-                final emailSender = controller.textControllers[AddShipmentController.emailSenderIndex].text.trim();
-                final gstSender = controller.textControllers[AddShipmentController.gstSenderIndex].text.trim();
-                final nameReceiver = controller.textControllers[AddShipmentController.nameReceiverIndex].text.trim();
-                final mobileReceiver = controller.textControllers[AddShipmentController.mobileReceiverIndex].text.trim();
-                final zipReceiver = controller.textControllers[AddShipmentController.zipReceiverIndex].text.trim();
-                final addressReceiver = controller.textControllers[AddShipmentController.addressReceiverIndex].text.trim();
-                final officeReceiver = controller.textControllers[AddShipmentController.officeReceiverIndex].text.trim();
-                final emailReceiver = controller.textControllers[AddShipmentController.emailReceiverIndex].text.trim();
-                final gstReceiver = controller.textControllers[AddShipmentController.gstReceiverIndex].text.trim();
-
-
+                final nameSender =
+                    controller
+                        .textControllers[AddShipmentController.nameSenderIndex]
+                        .text
+                        .trim();
+                final mobileSender =
+                    controller
+                        .textControllers[AddShipmentController
+                            .mobileSenderIndex]
+                        .text
+                        .trim();
+                final zipSender =
+                    controller
+                        .textControllers[AddShipmentController.zipSenderIndex]
+                        .text
+                        .trim();
+                final addressSender =
+                    controller
+                        .textControllers[AddShipmentController
+                            .addressSenderIndex]
+                        .text
+                        .trim();
+                final officeSender =
+                    controller
+                        .textControllers[AddShipmentController
+                            .officeSenderIndex]
+                        .text
+                        .trim();
+                final emailSender =
+                    controller
+                        .textControllers[AddShipmentController.emailSenderIndex]
+                        .text
+                        .trim();
+                final gstSender =
+                    controller
+                        .textControllers[AddShipmentController.gstSenderIndex]
+                        .text
+                        .trim();
+                final nameReceiver =
+                    controller
+                        .textControllers[AddShipmentController
+                            .nameReceiverIndex]
+                        .text
+                        .trim();
+                final mobileReceiver =
+                    controller
+                        .textControllers[AddShipmentController
+                            .mobileReceiverIndex]
+                        .text
+                        .trim();
+                final zipReceiver =
+                    controller
+                        .textControllers[AddShipmentController.zipReceiverIndex]
+                        .text
+                        .trim();
+                final addressReceiver =
+                    controller
+                        .textControllers[AddShipmentController
+                            .addressReceiverIndex]
+                        .text
+                        .trim();
+                final officeReceiver =
+                    controller
+                        .textControllers[AddShipmentController
+                            .officeReceiverIndex]
+                        .text
+                        .trim();
+                final emailReceiver =
+                    controller
+                        .textControllers[AddShipmentController
+                            .emailReceiverIndex]
+                        .text
+                        .trim();
 
                 // Debug print all values
                 debugPrint('======= SHIPMENT FORM VALUES =======');
@@ -296,15 +354,7 @@ class ShipmentFormScreen extends StatelessWidget {
                 debugPrint('Address: $addressReceiver');
                 debugPrint('Office: $officeReceiver');
                 debugPrint('Email: $emailReceiver');
-                debugPrint('GST: $gstReceiver');
                 debugPrint('====================================');
-
-
-
-
-
-
-
 
                 if (nameSender.isEmpty ||
                     mobileSender.isEmpty ||
@@ -325,7 +375,8 @@ class ShipmentFormScreen extends StatelessWidget {
                 }
 
                 // Additional format validation (optional)
-                if (!RegExp(r'^\d{10}$').hasMatch(mobileSender) || !RegExp(r'^\d{10}$').hasMatch(mobileReceiver)) {
+                if (!RegExp(r'^\d{10}$').hasMatch(mobileSender) ||
+                    !RegExp(r'^\d{10}$').hasMatch(mobileReceiver)) {
                   Get.snackbar(
                     'Invalid Mobile Number',
                     'Mobile number must be 10 digits.',
@@ -347,7 +398,8 @@ class ShipmentFormScreen extends StatelessWidget {
                   return;
                 }
 
-                if (emailReceiver.isNotEmpty && !GetUtils.isEmail(emailReceiver)) {
+                if (emailReceiver.isNotEmpty &&
+                    !GetUtils.isEmail(emailReceiver)) {
                   Get.snackbar(
                     'Invalid Email',
                     'Please enter a valid receiver email.',
@@ -409,7 +461,9 @@ class ShipmentFormScreen extends StatelessWidget {
           spacing: 10,
           children: [
             CustomTextField(
-              controller: controller.textControllers[AddShipmentController.nameSenderIndex],
+              controller:
+                  controller.textControllers[AddShipmentController
+                      .nameSenderIndex],
               label: 'Name',
               hint: 'Enter name',
               prefixIcon: Icons.person,
@@ -422,7 +476,9 @@ class ShipmentFormScreen extends StatelessWidget {
               onSubmitted: (_) {},
             ),
             CustomTextField(
-              controller: controller.textControllers[AddShipmentController.mobileSenderIndex],
+              controller:
+                  controller.textControllers[AddShipmentController
+                      .mobileSenderIndex],
               label: 'Mobile',
               hint: 'Enter mobile number',
               prefixIcon: Icons.phone,
@@ -435,7 +491,9 @@ class ShipmentFormScreen extends StatelessWidget {
               onSubmitted: (_) {},
             ),
             CustomTextField(
-              controller: controller.textControllers[AddShipmentController.zipSenderIndex],
+              controller:
+                  controller.textControllers[AddShipmentController
+                      .zipSenderIndex],
               label: 'Zip Code',
               hint: 'Enter zip code',
               prefixIcon: Icons.location_on,
@@ -448,7 +506,9 @@ class ShipmentFormScreen extends StatelessWidget {
               onSubmitted: (_) {},
             ),
             CustomTextField(
-              controller: controller.textControllers[AddShipmentController.addressSenderIndex],
+              controller:
+                  controller.textControllers[AddShipmentController
+                      .addressSenderIndex],
               label: 'Address',
               hint: 'Enter address',
               prefixIcon: Icons.home,
@@ -461,7 +521,9 @@ class ShipmentFormScreen extends StatelessWidget {
               onSubmitted: (_) {},
             ),
             CustomTextField(
-              controller:controller.textControllers[AddShipmentController.officeSenderIndex],
+              controller:
+                  controller.textControllers[AddShipmentController
+                      .officeSenderIndex],
               label: 'Office Address',
               hint: 'Enter office address',
               prefixIcon: Icons.location_city,
@@ -474,7 +536,9 @@ class ShipmentFormScreen extends StatelessWidget {
               onSubmitted: (_) {},
             ),
             CustomTextField(
-              controller: controller.textControllers[AddShipmentController.emailSenderIndex],
+              controller:
+                  controller.textControllers[AddShipmentController
+                      .emailSenderIndex],
               label: 'Email',
               hint: 'Enter email',
               prefixIcon: Icons.email,
@@ -487,18 +551,73 @@ class ShipmentFormScreen extends StatelessWidget {
               onSubmitted: (_) {},
             ),
             if (value == 'Business')
-              CustomTextField(
-                controller: controller.textControllers[AddShipmentController.gstSenderIndex],
-                label: 'GST Number',
-                hint: 'Enter GST number',
-                prefixIcon: Icons.confirmation_number,
-                textInputAction: TextInputAction.done,
-                obscureText: false,
-                maxLines: 1,
-                keyboardType: TextInputType.text,
-                enabled: true,
-                onChanged: (_) {},
-                onSubmitted: (_) {},
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Expanded to make sure TextField doesn't overflow
+                  Expanded(
+                    child: Obx(() {
+                      return CustomTextField(
+                        controller: controller.textControllers[AddShipmentController.gstSenderIndex],
+                        errorText: controller.gstVerificationFailed.value
+                            ? 'GST verification failed'
+                            : null,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your GST number';
+                          }
+                          // You can add a RegExp check for GST format here if needed
+                          return null;
+                        },
+                        label: 'GST Number',
+                        hint: 'Enter GST number',
+                        prefixIcon: Icons.confirmation_number,
+                        textInputAction: TextInputAction.done,
+                        obscureText: false,
+                        maxLines: 1,
+                        keyboardType: TextInputType.text,
+                        enabled: true,
+                        onChanged: (value) {
+                          // Reset verification flags when GST number changes
+                          if (controller.isGSTVerified.value || controller.gstVerificationFailed.value) {
+                            controller.isGSTVerified.value = false;
+                            controller.gstVerificationFailed.value = false;
+                          }
+                        },
+                        onSubmitted: (_) {},
+                      );
+                    }),
+                  ),
+
+                  const SizedBox(width: 8),
+
+                  Obx(() {
+                    if (controller.isVerifyingGST.value) {
+                      return const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppColors.primary,
+                        ),
+                      );
+                    }
+
+                    if (controller.isGSTVerified.value) {
+                      return const Icon(
+                        Icons.check_circle,
+                        color: Colors.green,
+                        size: 24,
+                      );
+                    }
+
+                    return IconButton(
+                      icon: const Icon(Icons.verified_user, color: AppColors.primary),
+                      onPressed: controller.verifyGSTNumber,
+                      tooltip: 'Verify GST',
+                    );
+                  }),
+                ],
               ),
           ],
         );
@@ -507,7 +626,6 @@ class ShipmentFormScreen extends StatelessWidget {
   }
 
   Widget _buildFormReceiverFields(ValueNotifier<String> typeNotifier) {
-
     return ValueListenableBuilder(
       valueListenable: typeNotifier,
       builder: (context, value, _) {
@@ -515,7 +633,9 @@ class ShipmentFormScreen extends StatelessWidget {
           spacing: 10,
           children: [
             CustomTextField(
-              controller: controller.textControllers[AddShipmentController.nameReceiverIndex],
+              controller:
+                  controller.textControllers[AddShipmentController
+                      .nameReceiverIndex],
               label: 'Name',
               hint: 'Enter name',
               prefixIcon: Icons.person,
@@ -528,7 +648,9 @@ class ShipmentFormScreen extends StatelessWidget {
               onSubmitted: (_) {},
             ),
             CustomTextField(
-              controller: controller.textControllers[AddShipmentController.mobileReceiverIndex],
+              controller:
+                  controller.textControllers[AddShipmentController
+                      .mobileReceiverIndex],
               label: 'Mobile',
               hint: 'Enter mobile number',
               prefixIcon: Icons.phone,
@@ -541,7 +663,9 @@ class ShipmentFormScreen extends StatelessWidget {
               onSubmitted: (_) {},
             ),
             CustomTextField(
-              controller: controller.textControllers[AddShipmentController.zipReceiverIndex],
+              controller:
+                  controller.textControllers[AddShipmentController
+                      .zipReceiverIndex],
               label: 'Zip Code',
               hint: 'Enter zip code',
               prefixIcon: Icons.location_on,
@@ -554,7 +678,9 @@ class ShipmentFormScreen extends StatelessWidget {
               onSubmitted: (_) {},
             ),
             CustomTextField(
-              controller: controller.textControllers[AddShipmentController.addressReceiverIndex],
+              controller:
+                  controller.textControllers[AddShipmentController
+                      .addressReceiverIndex],
               label: 'Address',
               hint: 'Enter address',
               prefixIcon: Icons.home,
@@ -567,7 +693,9 @@ class ShipmentFormScreen extends StatelessWidget {
               onSubmitted: (_) {},
             ),
             CustomTextField(
-              controller:controller.textControllers[AddShipmentController.officeReceiverIndex],
+              controller:
+                  controller.textControllers[AddShipmentController
+                      .officeReceiverIndex],
               label: 'Office Address',
               hint: 'Enter office address',
               prefixIcon: Icons.location_city,
@@ -580,7 +708,9 @@ class ShipmentFormScreen extends StatelessWidget {
               onSubmitted: (_) {},
             ),
             CustomTextField(
-              controller: controller.textControllers[AddShipmentController.emailReceiverIndex],
+              controller:
+                  controller.textControllers[AddShipmentController
+                      .emailReceiverIndex],
               label: 'Email',
               hint: 'Enter email',
               prefixIcon: Icons.email,
@@ -592,20 +722,6 @@ class ShipmentFormScreen extends StatelessWidget {
               onChanged: (_) {},
               onSubmitted: (_) {},
             ),
-            if (value == 'Business')
-              CustomTextField(
-                controller: controller.textControllers[AddShipmentController.gstReceiverIndex],
-                label: 'GST Number',
-                hint: 'Enter GST number',
-                prefixIcon: Icons.confirmation_number,
-                textInputAction: TextInputAction.done,
-                obscureText: false,
-                maxLines: 1,
-                keyboardType: TextInputType.text,
-                enabled: true,
-                onChanged: (_) {},
-                onSubmitted: (_) {},
-              ),
           ],
         );
       },

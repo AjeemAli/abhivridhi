@@ -358,49 +358,62 @@ class AddShipmentScreen extends StatelessWidget {
             children: [
               _buildLabel('Pickup Location'),
               Column(
-                spacing: 10,
                 children: [
                   CustomTextField(
-                    controller: controller.textControllers[AddShipmentController.fromIndex],
+                    controller:
+                        controller.textControllers[AddShipmentController
+                            .fromIndex],
                     onChanged: (value) {
-                      locationController.fetchFromSuggestions(value);
+                      if (value.isNotEmpty) {
+                        locationController.fetchSuggestions(value, true);
+                      } else {
+                        locationController.fromSuggestions.clear();
+                      }
                     },
                     label: 'Location',
                     hint: 'Enter starting location',
                     prefixIcon: Icons.location_on,
                     textInputAction: TextInputAction.next,
                     obscureText: false,
-                    maxLines: 1,
                     keyboardType: TextInputType.text,
+                    maxLines: 1,
                     enabled: true,
                     onSubmitted: (value) {},
                   ),
-
                   Obx(() {
-                    return locationController.fromSuggestions.isNotEmpty
-                        ? ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: locationController.fromSuggestions.length,
-                      itemBuilder: (context, index) {
-                        final suggestion = locationController.fromSuggestions[index];
-                        return ListTile(
-                          title: Text(suggestion['description']),
-                          onTap: () async {
-                            final placeId = suggestion['place_id'];
-                            await locationController.setFromLocation(placeId);
-
-                            controller.textControllers[AddShipmentController.fromIndex].text =
-                                locationController.selectedFromLocation['address'] ?? '';
-
-                            locationController.fromSuggestions.clear();
-                            FocusScope.of(context).unfocus();
-                          },
-                        );
-                      },
-                    )
-                        : SizedBox.shrink(); // hide if no suggestion
+                    if (locationController.fromSuggestions.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+                    return Container(
+                      constraints: BoxConstraints(
+                        maxHeight: MediaQuery.of(context).size.height * 0.3,
+                      ),
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: locationController.fromSuggestions.length,
+                        itemBuilder: (context, index) {
+                          final suggestion =
+                              locationController.fromSuggestions[index];
+                          return ListTile(
+                            title: Text(suggestion['description']),
+                            onTap: () async {
+                              final placeId = suggestion['place_id'];
+                              final details = await locationController
+                                  .getPlaceDetails(placeId);
+                              locationController.selectedFromLocation.value =
+                                  details;
+                              controller
+                                  .textControllers[AddShipmentController
+                                      .fromIndex]
+                                  .text = details['address'] ?? '';
+                              locationController.fromSuggestions.clear();
+                              FocusScope.of(context).unfocus();
+                            },
+                          );
+                        },
+                      ),
+                    );
                   }),
-
                 ],
               ),
 
@@ -411,16 +424,25 @@ class AddShipmentScreen extends StatelessWidget {
 
               // New Multiple Labour Options Section
               _buildLabel('Labour Services'),
-              _buildLabourInputField('Pickup Labour (Max 5)', controller.pickupLabourController),
+              _buildLabourInputField(
+                'Pickup Labour (Max 5)',
+                controller.pickupLabourController,
+              ),
 
               _buildLabel('Delivery Location'),
               Column(
                 spacing: 10,
                 children: [
                   CustomTextField(
-                    controller: controller.textControllers[AddShipmentController.toIndex],
+                    controller:
+                        controller.textControllers[AddShipmentController
+                            .toIndex],
                     onChanged: (value) {
-                      locationController.fetchToSuggestions(value);
+                      if (value.isNotEmpty) {
+                        locationController.fetchSuggestions(value, false);
+                      } else {
+                        locationController.toSuggestions.clear();
+                      }
                     },
                     label: 'Location',
                     hint: 'Enter destination',
@@ -434,30 +456,39 @@ class AddShipmentScreen extends StatelessWidget {
                   ),
 
                   Obx(() {
-                    return locationController.toSuggestions.isNotEmpty
-                        ? ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: locationController.toSuggestions.length,
-                      itemBuilder: (context, index) {
-                        final suggestion = locationController.toSuggestions[index];
-                        return ListTile(
-                          title: Text(suggestion['description']),
-                          onTap: () async {
-                            final placeId = suggestion['place_id'];
-                            await locationController.setToLocation(placeId);
-
-                            controller.textControllers[AddShipmentController.toIndex].text =
-                                locationController.selectedToLocation['address'] ?? '';
-
-                            locationController.toSuggestions.clear();
-                            FocusScope.of(context).unfocus();
-                          },
-                        );
-                      },
-                    )
-                        : SizedBox.shrink();
+                    if (locationController.toSuggestions.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+                    return Container(
+                      constraints: BoxConstraints(
+                        maxHeight: MediaQuery.of(context).size.height * 0.3,
+                      ),
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: locationController.toSuggestions.length,
+                        itemBuilder: (context, index) {
+                          final suggestion =
+                              locationController.toSuggestions[index];
+                          return ListTile(
+                            title: Text(suggestion['description']),
+                            onTap: () async {
+                              final placeId = suggestion['place_id'];
+                              final details = await locationController
+                                  .getPlaceDetails(placeId);
+                              locationController.selectedToLocation.value =
+                                  details;
+                              controller
+                                  .textControllers[AddShipmentController
+                                      .toIndex]
+                                  .text = details['address'] ?? '';
+                              locationController.toSuggestions.clear();
+                              FocusScope.of(context).unfocus();
+                            },
+                          );
+                        },
+                      ),
+                    );
                   }),
-
                 ],
               ),
 
@@ -467,49 +498,48 @@ class AddShipmentScreen extends StatelessWidget {
               const SizedBox(height: 20),
               CustomButton(
                 onPressed: () {
-                    final fromDetails = locationController.selectedFromLocation;
-                    final toDetails = locationController.selectedToLocation;
+                  final fromDetails = locationController.selectedFromLocation;
+                  final toDetails = locationController.selectedToLocation;
 
-                    final fromAddress = fromDetails['address'];
-                    final fromLat = fromDetails['lat'];
-                    final fromLng = fromDetails['lng'];
+                  final fromAddress = fromDetails['address'];
+                  final fromLat = fromDetails['lat'];
+                  final fromLng = fromDetails['lng'];
 
-                    final toAddress = toDetails['address'];
-                    final toLat = toDetails['lat'];
-                    final toLng = toDetails['lng'];
+                  final toAddress = toDetails['address'];
+                  final toLat = toDetails['lat'];
+                  final toLng = toDetails['lng'];
 
-                    final deliveryType = controller.selectedOption.value;
-                    final weightSize = controller.weight.value;
-                    final priceSize = controller.price.value;
-                    final selectedVehicles = controller.selectedVehicle;
-                    final labourOptions = controller.selectedLabourOptions;
+                  final deliveryType = controller.selectedOption.value;
+                  final weightSize = controller.weight.value;
+                  final priceSize = controller.price.value;
+                  final selectedVehicles = controller.selectedVehicle;
+                  final labourOptions = controller.selectedLabourOptions;
 
-                    debugPrint('======= FORM VALUES =======');
-                    debugPrint('From: $fromAddress [$fromLat, $fromLng]');
-                    debugPrint('To: $toAddress [$toLat, $toLng]');
-                    debugPrint('Delivery Type: $deliveryType');
-                    debugPrint('Weight: $weightSize kg');
-                    debugPrint('Price: ₹$priceSize');
-                    debugPrint('Vehicle: $selectedVehicles');
-                    debugPrint('Labour: $labourOptions');
-                    debugPrint('===========================');
+                  debugPrint('======= FORM VALUES =======');
+                  debugPrint('From: $fromAddress [$fromLat, $fromLng]');
+                  debugPrint('To: $toAddress [$toLat, $toLng]');
+                  debugPrint('Delivery Type: $deliveryType');
+                  debugPrint('Weight: $weightSize kg');
+                  debugPrint('Price: ₹$priceSize');
+                  debugPrint('Vehicle: $selectedVehicles');
+                  debugPrint('Labour: $labourOptions');
+                  debugPrint('===========================');
 
-                    if (fromAddress == null ||
-                        toAddress == null ||
-                        deliveryType.isEmpty ||
-                        selectedVehicles.isEmpty) {
-                      Get.snackbar(
-                        'Missing Fields',
-                        'Please fill all required fields before proceeding.',
-                        snackPosition: SnackPosition.BOTTOM,
-                        backgroundColor: Colors.redAccent,
-                        colorText: Colors.white,
-                      );
-                    } else {
-                      // You can send full data to API or next screen
-                      Get.to(() => ShipmentFormScreen());
-                    }
-
+                  if (fromAddress == null ||
+                      toAddress == null ||
+                      deliveryType.isEmpty ||
+                      selectedVehicles.isEmpty) {
+                    Get.snackbar(
+                      'Missing Fields',
+                      'Please fill all required fields before proceeding.',
+                      snackPosition: SnackPosition.BOTTOM,
+                      backgroundColor: Colors.redAccent,
+                      colorText: Colors.white,
+                    );
+                  } else {
+                    // You can send full data to API or next screen
+                    Get.to(() => ShipmentFormScreen());
+                  }
                 },
                 text: 'Proceed',
                 color: AppColors.primary,
@@ -540,7 +570,7 @@ class AddShipmentScreen extends StatelessWidget {
 
   Widget _buildSingleVehicleOptions() {
     return Obx(
-          () => Wrap(
+      () => Wrap(
         spacing: 10,
         runSpacing: 10,
         children: [
@@ -624,13 +654,19 @@ class AddShipmentScreen extends StatelessWidget {
   //   );
   // }
 
-  Widget _buildLabourInputField(String label, TextEditingController inputController) {
+  Widget _buildLabourInputField(
+    String label,
+    TextEditingController inputController,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+          Text(
+            label,
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          ),
           const SizedBox(height: 6),
           TextField(
             controller: inputController,
@@ -646,9 +682,12 @@ class AddShipmentScreen extends StatelessWidget {
                 int val = int.tryParse(value) ?? 0;
                 if (val < 1 || val > 5) {
                   inputController.clear();
-                  Get.snackbar('Invalid Input', 'Please enter a number between 1 and 5');
+                  Get.snackbar(
+                    'Invalid Input',
+                    'Please enter a number between 1 and 5',
+                  );
                 } else {
-                controller.updatePickupLabour(value);
+                  controller.updatePickupLabour(value);
                 }
               }
             },
@@ -657,8 +696,6 @@ class AddShipmentScreen extends StatelessWidget {
       ),
     );
   }
-
-
 
   Widget _buildSelectableOption({
     required IconData icon,

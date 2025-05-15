@@ -80,59 +80,56 @@ class LocationDataController extends GetxController {
 
 
 class PlaceSearchController extends GetxController {
-  var fromSuggestions = [].obs; // Suggestions for "From" location input
-  var toSuggestions = [].obs;   // Suggestions for "To" location input
+  var fromSuggestions = [].obs;
+  var toSuggestions = [].obs;
 
   RxMap<String, dynamic> selectedFromLocation = <String, dynamic>{}.obs;
   RxMap<String, dynamic> selectedToLocation = <String, dynamic>{}.obs;
 
   final String googleApiKey = "AIzaSyDuMG2WaY4Vwi0iM3XqPdUrNAcvjHtR8wE";
 
-  // Fetch suggestions from Google API for "From" location
-  Future<void> fetchFromSuggestions(String input) async {
-    await _fetchSuggestions(input, isFrom: true);
+  // Clear all location data
+  void clearAll() {
+    fromSuggestions.clear();
+    toSuggestions.clear();
+    selectedFromLocation.clear();
+    selectedToLocation.clear();
   }
 
-  // Fetch suggestions from Google API for "To" location
-  Future<void> fetchToSuggestions(String input) async {
-    await _fetchSuggestions(input, isFrom: false);
-  }
-
-  // Shared method to fetch autocomplete suggestions
-  Future<void> _fetchSuggestions(String input, {required bool isFrom}) async {
+  // Fetch suggestions for either from/to location
+  Future<void> fetchSuggestions(String input, bool isFrom) async {
     if (input.isEmpty) {
       isFrom ? fromSuggestions.clear() : toSuggestions.clear();
       return;
     }
 
     final url = Uri.parse(
-        'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input&key=$googleApiKey');
-    final response = await http.get(url);
+        'https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input&key=$googleApiKey&components=country:in'
+    );
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      final predictions = data['predictions'];
-      if (isFrom) {
-        fromSuggestions.value = predictions;
-      } else {
-        toSuggestions.value = predictions;
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (isFrom) {
+          fromSuggestions.value = data['predictions'] ?? [];
+        } else {
+          toSuggestions.value = data['predictions'] ?? [];
+        }
       }
-    } else {
+    } catch (e) {
+      print('Error fetching suggestions: $e');
       isFrom ? fromSuggestions.clear() : toSuggestions.clear();
     }
   }
 
-  // Get full details (address, lat/lng) of a selected place
-  Future<Map<String, dynamic>?> getPlaceDetails(String placeId) async {
+  // Get detailed place information
+  Future<Map<String, dynamic>> getPlaceDetails(String placeId) async {
     final url = Uri.parse(
-      'https://maps.googleapis.com/maps/api/place/details/json'
-          '?place_id=$placeId'
-          '&fields=formatted_address,geometry,address_component'
-          '&key=$googleApiKey',
+        'https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&fields=name,formatted_address,geometry,address_components&key=$googleApiKey'
     );
 
     final response = await http.get(url);
-
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       final result = data['result'];
@@ -142,40 +139,26 @@ class PlaceSearchController extends GetxController {
         'address': result['formatted_address'],
         'lat': result['geometry']['location']['lat'],
         'lng': result['geometry']['location']['lng'],
-        'area': _extractCityOrArea(components),
+        'street': _extractComponent(components, 'route'),
+        'city': _extractComponent(components, 'locality') ??
+            _extractComponent(components, 'administrative_area_level_2'),
+        'district': _extractComponent(components, 'administrative_area_level_2'),
+        'state': _extractComponent(components, 'administrative_area_level_1'),
+        'pincode': _extractComponent(components, 'postal_code'),
       };
     }
-
-    return null;
+    return {};
   }
 
-  // Set selected place data for "From" location
-  Future<void> setFromLocation(String placeId) async {
-    final details = await getPlaceDetails(placeId);
-    if (details != null) {
-      selectedFromLocation.value = details;
+  String? _extractComponent(List components, String type) {
+    try {
+      return (components.firstWhere(
+              (c) => c['types'].contains(type),
+          orElse: () => {'long_name': null}
+      ))['long_name'];
+    } catch (e) {
+      return null;
     }
-  }
-
-  // Set selected place data for "To" location
-  Future<void> setToLocation(String placeId) async {
-    final details = await getPlaceDetails(placeId);
-    if (details != null) {
-      selectedToLocation.value = details;
-    }
-  }
-
-  // Extract city or area name from address components
-  String _extractCityOrArea(List components) {
-    for (var comp in components) {
-      if (comp['types'].contains('locality')) {
-        return comp['long_name'];
-      }
-      if (comp['types'].contains('administrative_area_level_2')) {
-        return comp['long_name'];
-      }
-    }
-    return components.first['long_name'];
   }
 }
 

@@ -38,7 +38,7 @@ class CustomTextField extends StatelessWidget {
     required this.maxLines,
     this.labelColor = Colors.grey,
     this.fontWeight,
-    this.borderColor = Colors.grey, required  Function(dynamic value) onSubmitted,
+    this.borderColor = Colors.grey, required  Function(dynamic value) onSubmitted, String? errorText,
   });
 
   @override

@@ -7,6 +7,7 @@ import '../../screens/shipment/parcel_screen.dart';
 import '../../screens/shipment/sender_screen.dart';
 import '../utils/app_color.dart';
 import 'api_services.dart';
+import 'location_controller.dart';
 
 class AddShipmentController extends GetxController {
 
@@ -19,6 +20,11 @@ class AddShipmentController extends GetxController {
   var longitude = 0.0.obs;
   var deliveryLatitude = 0.0.obs;
   var deliveryLongitude = 0.0.obs;
+  var isVerifyingGST = false.obs;
+  var isGSTVerified = false.obs;
+  var gstVerificationFailed = false.obs;
+
+
 
   void selectVehicle(String vehicle) {
     if (selectedVehicle.value == vehicle) {
@@ -73,7 +79,7 @@ class AddShipmentController extends GetxController {
 
   // Text controllers
   final List<TextEditingController> textControllers = List.generate(
-    16,
+    15,
         (_) => TextEditingController(),
   );
 
@@ -93,12 +99,24 @@ class AddShipmentController extends GetxController {
   static const int officeReceiverIndex = 12;
   static const int emailReceiverIndex = 13;
   static const int gstSenderIndex = 14;
-  static const int gstReceiverIndex = 15;
+
 
 
   final TextEditingController zipController = TextEditingController();
   final TextEditingController pickupLabourController = TextEditingController();
   final deliveryLabourController = TextEditingController();
+
+
+
+  void clearFromLocation() {
+    textControllers[AddShipmentController.fromIndex].clear();
+    Get.find<PlaceSearchController>().selectedFromLocation.clear();
+  }
+
+  void clearToLocation() {
+    textControllers[AddShipmentController.toIndex].clear();
+    Get.find<PlaceSearchController>().selectedToLocation.clear();
+  }
 
   void updatePickupLabour(String value) {
     if (value.isNotEmpty) {
@@ -247,7 +265,7 @@ class AddShipmentController extends GetxController {
   }
 
 
-
+// Api Function of Add shipping
   Future<void> addShipping() async {
     if (!isValidInput()) return;
     final requestData = {
@@ -302,8 +320,72 @@ class AddShipmentController extends GetxController {
     }
   }
 
+  // Api Function of GST Verification
+  Future<void> verifyGSTNumber() async {
+    final gstin = textControllers[gstSenderIndex].text.trim();
+
+    if (gstin.isEmpty) {
+      showErrorSnackbar('Empty GSTIN', 'Please enter GSTIN number');
+      return;
+    }
+
+    try {
+      isVerifyingGST.value = true;
+      gstVerificationFailed.value = false;
+
+      final response = await _apiService.postRequest(
+        "verify-gst",
+        data: {"gstin": gstin},
+        requiresAuth: false,
+      );
+
+      print('GST verification Response: $response');
+
+      if (response['success'] == true && response['data']['valid'] == true) {
+        isGSTVerified.value = true;
+        gstVerificationFailed.value = false;
+
+        showSuccessSnackbar('Verified', response['data']['message'] ?? 'GSTIN verified successfully');
+
+        // Access other useful details
+        final gstData = response['data'];
+        print('Legal Name: ${gstData['legal_name_of_business']}');
+        print('Trade Name: ${gstData['trade_name_of_business']}');
+        print('Address: ${gstData['principal_place_address']}');
+
+        // You can store the data to use later if needed
+        // e.g., controller.legalName.value = gstData['legal_name_of_business'];
+
+      } else {
+        isGSTVerified.value = false;
+        gstVerificationFailed.value = true;
+
+        showErrorSnackbar('Invalid GSTIN', response['data']['message'] ?? 'GSTIN verification failed');
+      }
+
+    } catch (e) {
+      print('GST verification Error: $e');
+      isGSTVerified.value = false;
+      gstVerificationFailed.value = true;
+      showErrorSnackbar('Error', 'GSTIN verification failed: ${e.toString()}');
+    } finally {
+      isVerifyingGST.value = false;
+    }
+  }
+
+
+
   void showSnackbar(String title, String message) {
     Get.snackbar(title, message, snackPosition: SnackPosition.BOTTOM);
+  }
+  // Show error snackbar
+  void showErrorSnackbar(String title, String message) {
+    Get.snackbar(title, message, snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
+  }
+
+  // Show success snackbar
+  void showSuccessSnackbar(String title, String message) {
+    Get.snackbar(title, message, snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.green, colorText: Colors.white);
   }
 
   Future<void> autoFillFromLocation() async {
