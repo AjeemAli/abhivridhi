@@ -305,10 +305,10 @@ class HomeScreen extends GetView<LocationDataController> {
         );
       }
 
-      final shipments = _shippingController.shippingList;
-      final pending = _shippingController.pendingCount;
-      final inProgress = _shippingController.inProgressCount;
-      final delivered = _shippingController.deliveredCount;
+      // final shipments = _shippingController.shippingList;
+      // final pending = _shippingController.pendingCount;
+      // final inProgress = _shippingController.inProgressCount;
+      // final delivered = _shippingController.deliveredCount;
 
       return Card(
         elevation: 2,
@@ -328,26 +328,26 @@ class HomeScreen extends GetView<LocationDataController> {
                 ),
               ),
               const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildStatusIndicator(
-                    count: pending,
-                    label: "Pending",
-                    color: Colors.orange,
-                  ),
-                  _buildStatusIndicator(
-                    count: inProgress,
-                    label: "In Transit",
-                    color: Colors.blue,
-                  ),
-                  _buildStatusIndicator(
-                    count: delivered,
-                    label: "Delivered",
-                    color: Colors.green,
-                  ),
-                ],
-              ),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //   children: [
+              //     _buildStatusIndicator(
+              //       count: pending,
+              //       label: "Pending",
+              //       color: Colors.orange,
+              //     ),
+              //     _buildStatusIndicator(
+              //       count: inProgress,
+              //       label: "In Transit",
+              //       color: Colors.blue,
+              //     ),
+              //     _buildStatusIndicator(
+              //       count: delivered,
+              //       label: "Delivered",
+              //       color: Colors.green,
+              //     ),
+              //   ],
+              // ),
             ],
           ),
         ),

@@ -29,9 +29,8 @@ class _TrackingCardListState extends State<TrackingCardList> {
 
   void _navigateToDetails(String orderId) {
     final detailsController = Get.put(ShippingDetailsMoreController());
-    final orderDetailsController = Get.put(ShippingDetailsMoreController());
     detailsController.setShippingId(orderId);
-orderDetailsController.id;
+    detailsController.id;
     Get.to(
           () =>  TrackOrderScreen(
         orderId:orderId ,
@@ -83,10 +82,10 @@ orderDetailsController.id;
                   },
                   child: TrackingCard(
                     trackingNumber: orderId,
-                    customer: item.name ?? 'N/A',
-                    from: item.startLocation ?? 'N/A',
-                    to: item.endLocation ?? 'N/A',
-                    arrivalDate: item.date ?? 'N/A',
+                    customer: item.nameSender ?? 'N/A',
+                    from: item.pickupLocation ?? 'N/A',
+                    to: item.deliveryLocation ?? 'N/A',
+                    arrivalDate: item.price ?? 'N/A',
                   ),
                 );
               },

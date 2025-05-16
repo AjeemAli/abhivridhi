@@ -82,7 +82,7 @@ class TrackingCard extends StatelessWidget {
             children: [
               _buildColumn("From", from, isRight: true),
               _buildColumn("To", to, isRight: true),
-              _buildColumn("Arrival Date", arrivalDate, isRight: true),
+              _buildColumn("Price", arrivalDate, isRight: true),
             ],
           ),
         ],

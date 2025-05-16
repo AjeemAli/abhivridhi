@@ -26,101 +26,138 @@ class ShippingDetailsResponse {
 
 class OrderData {
   int? id;
-  String? name;
   int? userId;
-  String? price;
-  String? date;
-  String? startLocation;
-  String? endLocation;
-  String? weight;
-  String? address;
-  String? phone;
-  String? email;
-  String? zipCode;
-  String? productName;
-  String? type;
-  String? oversizeCharge;
+  String? pickupLocation;
+  String? deliveryLocation;
+  String? vehicleType;
+  String? labourType;
+  String? courierType;
   String? orderId;
-  String? status;
-  String? progress;
+  String? weight;
+  String? price;
+  String? nameSender;
+  String? mobileSender;
+  String? zipSender;
+  String? addressSender;
+  String? officeSender;
+  String? emailSender;
+  String? nameReceiver;
+  String? mobileReceiver;
+  String? zipReceiver;
+  String? addressReceiver;
+  String? officeReceiver;
+  String? emailReceiver;
+  int? homeDelivery;
+  String? orderTracking;
+  int? overSized;
+  int? fragileHandling;
+  int? sameDayDelivery;
+  int? caseOnDelivery;
+  String? totalAmount;
   String? createdAt;
   String? updatedAt;
-  String? nextDayDeliveryCharge;
-  String? trackingCharge;
 
   OrderData(
       {this.id,
-        this.name,
         this.userId,
-        this.price,
-        this.date,
-        this.startLocation,
-        this.endLocation,
-        this.weight,
-        this.address,
-        this.phone,
-        this.email,
-        this.zipCode,
-        this.productName,
-        this.type,
-        this.oversizeCharge,
+        this.pickupLocation,
+        this.deliveryLocation,
+        this.vehicleType,
+        this.labourType,
+        this.courierType,
         this.orderId,
-        this.status,
-        this.progress,
+        this.weight,
+        this.price,
+        this.nameSender,
+        this.mobileSender,
+        this.zipSender,
+        this.addressSender,
+        this.officeSender,
+        this.emailSender,
+        this.nameReceiver,
+        this.mobileReceiver,
+        this.zipReceiver,
+        this.addressReceiver,
+        this.officeReceiver,
+        this.emailReceiver,
+        this.homeDelivery,
+        this.orderTracking,
+        this.overSized,
+        this.fragileHandling,
+        this.sameDayDelivery,
+        this.caseOnDelivery,
+        this.totalAmount,
         this.createdAt,
-        this.updatedAt,
-        this.nextDayDeliveryCharge,
-        this.trackingCharge});
+        this.updatedAt});
 
   OrderData.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    name = json['name'];
     userId = json['user_id'];
-    price = json['price'];
-    date = json['date'];
-    startLocation = json['start_location'];
-    endLocation = json['end_location'];
-    weight = json['weight'];
-    address = json['address'];
-    phone = json['phone'];
-    email = json['email'];
-    zipCode = json['Zip_code'];
-    productName = json['product_name'];
-    type = json['type'];
-    oversizeCharge = json['Oversize_charge'];
+    pickupLocation = json['pickup_location'];
+    deliveryLocation = json['delivery_location'];
+    vehicleType = json['vehicle_type'];
+    labourType = json['labour_type'];
+    courierType = json['courier_type'];
     orderId = json['order_id'];
-    status = json['status'];
-    progress = json['progress'];
+    weight = json['weight'];
+    price = json['price'];
+    nameSender = json['name_sender'];
+    mobileSender = json['mobile_sender'];
+    zipSender = json['zip_sender'];
+    addressSender = json['address_sender'];
+    officeSender = json['office_sender'];
+    emailSender = json['email_sender'];
+    nameReceiver = json['name_receiver'];
+    mobileReceiver = json['mobile_receiver'];
+    zipReceiver = json['zip_receiver'];
+    addressReceiver = json['address_receiver'];
+    officeReceiver = json['office_receiver'];
+    emailReceiver = json['email_receiver'];
+    homeDelivery = json['home_delivery'];
+    orderTracking = json['order_tracking'];
+    overSized = json['over_sized'];
+    fragileHandling = json['fragile_handling'];
+    sameDayDelivery = json['same_day_delivery'];
+    caseOnDelivery = json['case_on_delivery'];
+    totalAmount = json['total_amount'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
-    nextDayDeliveryCharge = json['next_day_delivery_charge'];
-    trackingCharge = json['tracking_charge'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['id'] = this.id;
-    data['name'] = this.name;
     data['user_id'] = this.userId;
-    data['price'] = this.price;
-    data['date'] = this.date;
-    data['start_location'] = this.startLocation;
-    data['end_location'] = this.endLocation;
-    data['weight'] = this.weight;
-    data['address'] = this.address;
-    data['phone'] = this.phone;
-    data['email'] = this.email;
-    data['Zip_code'] = this.zipCode;
-    data['product_name'] = this.productName;
-    data['type'] = this.type;
-    data['Oversize_charge'] = this.oversizeCharge;
+    data['pickup_location'] = this.pickupLocation;
+    data['delivery_location'] = this.deliveryLocation;
+    data['vehicle_type'] = this.vehicleType;
+    data['labour_type'] = this.labourType;
+    data['courier_type'] = this.courierType;
     data['order_id'] = this.orderId;
-    data['status'] = this.status;
-    data['progress'] = this.progress;
+    data['weight'] = this.weight;
+    data['price'] = this.price;
+    data['name_sender'] = this.nameSender;
+    data['mobile_sender'] = this.mobileSender;
+    data['zip_sender'] = this.zipSender;
+    data['address_sender'] = this.addressSender;
+    data['office_sender'] = this.officeSender;
+    data['email_sender'] = this.emailSender;
+    data['name_receiver'] = this.nameReceiver;
+    data['mobile_receiver'] = this.mobileReceiver;
+    data['zip_receiver'] = this.zipReceiver;
+    data['address_receiver'] = this.addressReceiver;
+    data['office_receiver'] = this.officeReceiver;
+    data['email_receiver'] = this.emailReceiver;
+    data['home_delivery'] = this.homeDelivery;
+    data['order_tracking'] = this.orderTracking;
+    data['over_sized'] = this.overSized;
+    data['fragile_handling'] = this.fragileHandling;
+    data['same_day_delivery'] = this.sameDayDelivery;
+    data['case_on_delivery'] = this.caseOnDelivery;
+    data['total_amount'] = this.totalAmount;
     data['created_at'] = this.createdAt;
     data['updated_at'] = this.updatedAt;
-    data['next_day_delivery_charge'] = this.nextDayDeliveryCharge;
-    data['tracking_charge'] = this.trackingCharge;
     return data;
   }
 }
+

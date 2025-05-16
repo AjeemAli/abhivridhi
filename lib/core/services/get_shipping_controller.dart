@@ -12,9 +12,9 @@ class GetShippingController extends GetxController {
 
   List<Data> get shippingList => getShipping.value.data ?? [];
 
-  int get pendingCount => shippingList.where((s) => s.status?.toLowerCase() == 'pending').length;
-  int get inProgressCount => shippingList.where((s) => s.status?.toLowerCase() == 'in-progress').length;
-  int get deliveredCount => shippingList.where((s) => s.status?.toLowerCase() == 'delivered').length;
+  // int get pendingCount => shippingList.where((s) => s.status?.toLowerCase() == 'pending').length;
+  // int get inProgressCount => shippingList.where((s) => s.status?.toLowerCase() == 'in-progress').length;
+  // int get deliveredCount => shippingList.where((s) => s.status?.toLowerCase() == 'delivered').length;
 
   @override
   void onInit() {

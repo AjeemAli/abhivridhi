@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../../core/utils/app_color.dart';
-import '../../../models/order_details_model.dart';
+import '../../../models/shipment_details_response.dart';
 import '../track_map_widget.dart';
 import 'order_details_from_to.dart';
 import 'tracking_time_status.dart';
@@ -11,16 +11,19 @@ import 'tracking_time_status.dart';
 class ProductTrackingDetails extends StatelessWidget {
   final OrderData shippingData;
 
-  const ProductTrackingDetails({super.key, required this.shippingData});
+  const ProductTrackingDetails({
+    super.key,
+    required this.shippingData,
+  });
 
   String _generateQRData() {
     return jsonEncode({
       'order_id': shippingData.orderId,
-      'product_name': shippingData.productName,
+      'product_name': shippingData.nameSender,
       'tracking_number': shippingData.orderId,
-      'from': shippingData.startLocation,
-      'to': shippingData.endLocation,
-      'status': shippingData.status,
+      'from': shippingData.pickupLocation,
+      'to': shippingData.deliveryLocation,
+      'status': shippingData.courierType,
       'deep_link': 'yourapp://track-order/${shippingData.orderId}'
     });
   }
@@ -30,7 +33,8 @@ class ProductTrackingDetails extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
           color: AppColors.primary,
-          borderRadius: BorderRadius.only(topRight: Radius.circular(30),topLeft: Radius.circular(30))),
+          borderRadius: const BorderRadius.only(
+              topRight: Radius.circular(30), topLeft: Radius.circular(30))),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -55,7 +59,7 @@ class ProductTrackingDetails extends StatelessWidget {
             const SizedBox(height: 16),
             // Product Info
             Text(
-              shippingData.productName ?? 'No Product Name',
+              shippingData.nameSender ?? 'No Product Name',
               maxLines: 1,
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -78,16 +82,16 @@ class ProductTrackingDetails extends StatelessWidget {
             const SizedBox(height: 24),
             // From-To Section
             TrackingProductFromTo(
-              fromLocation: shippingData.startLocation ?? 'Origin Not Available',
-              toLocation: shippingData.endLocation ?? 'Destination Not Available',
+              fromLocation: shippingData.pickupLocation ?? 'Not Available',
+              toLocation: shippingData.deliveryLocation ?? 'Not Available',
             ),
 
             const SizedBox(height: 24),
             // Status Section
             TrackingTimeStatus(
-              status: shippingData.status ?? 'Status Not Available',
-              progress: shippingData.progress ?? '0',
-              time: shippingData.date as String? ?? 'Date Not Available',
+              status: shippingData.homeDelivery?.toString() ?? 'Status Not Available',
+              progress: shippingData.homeDelivery?.toString() ?? '0',
+              time: shippingData.homeDelivery?.toString() ?? 'Date Not Available',
             ),
 
             const SizedBox(height: 24),
@@ -102,4 +106,3 @@ class ProductTrackingDetails extends StatelessWidget {
     );
   }
 }
-

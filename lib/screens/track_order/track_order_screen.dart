@@ -1,4 +1,3 @@
-import 'package:abhivridhiapp/core/services/order_details_controller.dart';
 import 'package:abhivridhiapp/core/utils/app_color.dart';
 import 'package:abhivridhiapp/screens/track_order/widgets/product_tracking_details.dart';
 import 'package:flutter/material.dart';
@@ -89,43 +88,48 @@ class TrackOrderScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(OrderDetailsController());
+    final controller = Get.put(ShippingDetailsMoreController());
+    controller.setShippingId(orderId); // Set the orderId when the screen initializes
 
-    return FutureBuilder(
-      future: controller.fetchOrderDetails(orderId),
-      builder: (context, snapshot) {
-        return Scaffold(
-          backgroundColor: AppColors.background,
-          appBar: AppBar(title: const Text("Order Details")),
-          body: SafeArea(
-            child: Obx(() {
-              if (controller.isLoading.value) {
-                return const Center(child: CircularProgressIndicator());
-              }
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(title: const Text("Order Details")),
+      body: SafeArea(
+        child: Obx(() {
+          if (controller.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-              if (controller.errorMessage.value.isNotEmpty) {
-                return Center(child: Text(controller.errorMessage.value));
-              }
+          if (controller.errorMessage.value.isNotEmpty) {
+            return Center(child: Text(controller.errorMessage.value));
+          }
 
-              final orderData = controller.orderDetails.value.orderData;
-              if (orderData == null) {
-                return const Center(child: Text('Shipping data not available'));
-              }
+          if (controller.noIdMessage.value.isNotEmpty) {
+            return Center(child: Text(controller.noIdMessage.value));
+          }
 
-              return SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 20),
-                    ProductTrackingDetails(
-                      shippingData: orderData,
-                    ),
-                  ],
+          if (controller.shippingResponse.isEmpty) {
+            return const Center(child: Text('Shipping data not available'));
+          }
+
+          // Get the first order data (assuming we're showing one order at a time)
+          final orderData = controller.shippingResponse.first.orderData;
+          if (orderData == null) {
+            return const Center(child: Text('Order details not available'));
+          }
+
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                ProductTrackingDetails(
+                  shippingData: orderData,
                 ),
-              );
-            }),
-          ),
-        );
-      },
+              ],
+            ),
+          );
+        }),
+      ),
     );
   }
 }
